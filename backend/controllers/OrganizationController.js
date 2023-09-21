@@ -1,16 +1,16 @@
-import Education from "../models/EducationModel.js";
+import Organization from "../models/OrganizationModel.js";
 import User from "../models/UserModel.js";
 
-export const getEducation = async(req, res) => {
+export const getOrganization = async(req, res) => {
     try {
-        const response = await Education.findAll()
+        const response = await Organization.findAll()
         res.status(200).json(response)
     } catch (error) {
         console.log(error.message)
     }
 }
 
-export const getEducationByUserId = async (req, res) => {
+export const getOrganizationByUserId = async (req, res) => {
   try {
     const userId = req.params.id; // Assuming you're getting the user ID from the request parameters
 
@@ -18,17 +18,17 @@ export const getEducationByUserId = async (req, res) => {
     const user = await User.findByPk(userId);
 
     if (!user) {
-      return res.status(404).json({ message: 'Education not found' });
+      return res.status(404).json({ message: 'Organization not found' });
     }
 
     // Find education records associated with the user using the foreign key (user_id)
-    const educationRecords = await Education.findAll({
+    const organizationRecords = await Organization.findAll({
       where: {
         user_id: userId,
       },
     });
 
-    res.status(200).json(educationRecords);
+    res.status(200).json(organizationRecords);
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: 'Internal server error' });

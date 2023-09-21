@@ -4,37 +4,25 @@ import User from "./UserModel.js";
 
 const { DataTypes } = Sequelize;
 
-const Education = db.define(
-  "educations",
+const Skill = db.define(
+  "skills",
   {
-    name_sch: {
+    title: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
-    image: {
+    thumbnail: {
       type: DataTypes.BLOB,
       allowNull: true,
     },
-    start_year: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    end_year: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    major: {
+    level: {
       type: DataTypes.STRING,
-      allowNull: true,
-    },
-    information: {
-      type: DataTypes.TEXT,
       allowNull: true,
     },
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false, // Assuming each education entry is associated with a user
-    },
+    }
   },
   {
     freezeTableName: true,
@@ -42,9 +30,9 @@ const Education = db.define(
 );
 
 // Define the foreign key relationship
-Education.belongsTo(User, { foreignKey: "user_id" });
+Skill.belongsTo(User, { foreignKey: "user_id" });
 
-export default Education;
+export default Skill;
 
 (async () => {
   try {

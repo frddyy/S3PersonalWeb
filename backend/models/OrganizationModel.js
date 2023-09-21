@@ -4,12 +4,12 @@ import User from "./UserModel.js";
 
 const { DataTypes } = Sequelize;
 
-const Education = db.define(
-  "educations",
+const Organization = db.define(
+  "organizations",
   {
-    name_sch: {
+    name: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     image: {
       type: DataTypes.BLOB,
@@ -17,17 +17,17 @@ const Education = db.define(
     },
     start_year: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     end_year: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    major: {
-      type: DataTypes.STRING,
       allowNull: true,
     },
-    information: {
+    role: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    jobdesc: {
       type: DataTypes.TEXT,
       allowNull: true,
     },
@@ -42,9 +42,9 @@ const Education = db.define(
 );
 
 // Define the foreign key relationship
-Education.belongsTo(User, { foreignKey: "user_id" });
+Organization.belongsTo(User, { foreignKey: "user_id" });
 
-export default Education;
+export default Organization;
 
 (async () => {
   try {
