@@ -1,4 +1,68 @@
+################ CRUD EDUCATION ################
+
+### GET all education records
+GET http://localhost:5000/educations
+
+### GET education records by user_id
+GET http://localhost:5000/users/1/educations
+
+### Create a new education record for a user
+POST http://localhost:5000/users/1/educations
+Content-Type: application/json
+
+{
+    "name_sch": "Example School",
+    "image": null,
+    "start_year": 2015,
+    "end_year": 2020,
+    "major": "Computer Science",
+    "information": "Some information about the education",
+    "user_id" : 1
+    
+}
+
+### Update an education record by education_id and user_id
+PATCH http://localhost:5000/users/1/educations/2
+Content-Type: application/json
+
+{
+    "name_sch": "SMA Negeri 1 Garut",
+    "image": null,
+    "start_year": 2018,
+    "end_year": 2021,
+    "major": "Matematika dan IPA",
+    "information": "Aktif di MPK\nLolos ke PTN jalur SNMPTN",
+    "user_id" : 1
+}
+
+### Delete an education record by education_id and user_id
+DELETE http://localhost:5000/users/1/educations/3
+
+################ CRUD USER ################
+
+### Create Admin User
+POST http://localhost:5000/users
+Content-Type: application/json
+
+{
+    "username": "ferdyfauzan",
+    "password": "ferdyfauzan123",
+    "role": 0
+}
+
+### Create General User
+POST http://localhost:5000/users
+Content-Type: application/json
+
+{
+    "username": "rakamahardika",
+    "password": "rakamahardika123",
+    "role": 1
+}
+
+### Read Users
 GET http://localhost:5000/users
 
+
 ###
-GET http://localhost:5000/users/1
+DELETE http://localhost:5000/users/2
