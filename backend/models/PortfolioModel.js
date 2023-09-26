@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize";
 import db from "../config/Database.js";
-import User from "./UserModel.js";
+import PortfolioImage from "./PortfolioImageModel.js";
 
 const { DataTypes } = Sequelize;
 
@@ -16,13 +16,9 @@ const Portfolio = db.define(
       allowNull: true,
     },
     attachment: {
-        type: DataTypes.BLOB,
+        type: DataTypes.STRING,
         allowNull: true,
-      },
-    user_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false, // Assuming each education entry is associated with a user
-    }
+      }
   },
   {
     freezeTableName: true,
@@ -30,7 +26,8 @@ const Portfolio = db.define(
 );
 
 // Define the foreign key relationship
-Portfolio.belongsTo(User, { foreignKey: "user_id" });
+Portfolio.hasMany(PortfolioImage);
+PortfolioImage.belongsTo(Portfolio);
 
 export default Portfolio;
 

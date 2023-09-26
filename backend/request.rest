@@ -1,43 +1,3 @@
-################ CRUD EDUCATION ################
-
-### GET all education records
-GET http://localhost:5000/educations
-
-### GET education records by user_id
-GET http://localhost:5000/users/1/educations
-
-### Create a new education record for a user
-POST http://localhost:5000/users/1/educations
-Content-Type: application/json
-
-{
-    "name_sch": "Example School",
-    "image": null,
-    "start_year": 2015,
-    "end_year": 2020,
-    "major": "Computer Science",
-    "information": "Some information about the education",
-    "user_id" : 1
-    
-}
-
-### Update an education record by education_id and user_id
-PATCH http://localhost:5000/users/1/educations/2
-Content-Type: application/json
-
-{
-    "name_sch": "SMA Negeri 1 Garut",
-    "image": null,
-    "start_year": 2018,
-    "end_year": 2021,
-    "major": "Matematika dan IPA",
-    "information": "Aktif di MPK\nLolos ke PTN jalur SNMPTN",
-    "user_id" : 1
-}
-
-### Delete an education record by education_id and user_id
-DELETE http://localhost:5000/users/1/educations/3
-
 ################ CRUD USER ################
 
 ### Create Admin User
@@ -60,9 +20,111 @@ Content-Type: application/json
     "role": 1
 }
 
-### Read Users
+### Read User
 GET http://localhost:5000/users
 
-
-###
+### Delete User
 DELETE http://localhost:5000/users/2
+
+################ CRUD IDENTITY ################
+
+### Create User Identity
+POST http://localhost:5000/users/1/identities
+Content-Type: application/json
+
+{
+    "name": "Mochamad Ferdy Fauzan",
+    "image": "https://example.com/ferdy.jpg",
+    "place_of_birth": "Garut",
+    "date_of_birth": "2003-01-13",
+    "address": "Komplek Serra Valley D6, Bandung",
+    "phone_number": "085156600480",
+    "email": "m.ferdyfauzan@example.com",
+    "description": "A passionate web developer with a love for coding.",
+    "userId": 1
+}
+
+### Create User Identity
+POST http://localhost:5000/users/2/identities
+Content-Type: application/json
+
+{
+    "name": "Raka Mahardika Maulana",
+    "image": "https://example.com/raka.jpg",
+    "place_of_birth": "Bandung",
+    "date_of_birth": "2003-08-17",
+    "address": "Cinunuk, Bandung",
+    "phone_number": "085156444444",
+    "email": "mahardika@example.com",
+    "description": "A passionate web developer with a love for coding.",
+    "userId": 2
+}
+
+### Read All Identities
+GET http://localhost:5000/identities
+
+### Read Identity by User Id
+GET http://localhost:5000/users/2/identities
+
+### Read Identity by User Id and Identity Id
+GET http://localhost:5000/users/2/identities/3
+
+### Update Identity by User Id and Identity Id
+PATCH http://localhost:5000/users/1/identities/2
+Content-Type: application/json
+
+{
+    "name": "Mochamad Ferdy Fauzan",
+    "image": "https://example.com/ferdy.png",
+    "place_of_birth": "Garut",
+    "date_of_birth": "2003-01-13",
+    "address": "Perum Cijati Asri S 10, Garut",
+    "phone_number": "085156600480",
+    "email": "m.ferdyfauzan@gmail.com",
+    "description": "A passionate web developer with a love for coding."
+}
+
+### Delete Identity by User Id and Identity Id
+DELETE http://localhost:5000/users/2/identities/3
+
+################ CRUD EDUCATION ################
+
+### GET all education records
+GET http://localhost:5000/educations
+
+### GET education records by identity id
+GET http://localhost:5000/users/1/identities/2/educations
+
+### GET education records by identity id and education id
+GET http://localhost:5000/users/1/identities/2/educations/4
+
+### Create a new education record for a user
+POST http://localhost:5000/users/1/identities/2/educations
+Content-Type: application/json
+
+{
+    "name_sch": "Example School",
+    "image": null,
+    "start_year": 2015,
+    "end_year": 2020,
+    "major": "Computer Science",
+    "information": "Some information about the education",
+    "identityId" : 2
+    
+}
+
+### Update an education record by education_id and identity_id
+PATCH http://localhost:5000/users/1/identities/2/educations/4
+Content-Type: application/json
+
+{
+    "name_sch": "SMA Negeri 1 Garut",
+    "image": null,
+    "start_year": 2018,
+    "end_year": 2021,
+    "major": "Matematika dan IPA",
+    "information": "Aktif di MPK\nLolos ke PTN jalur SNMPTN"
+}
+
+### Delete an education record by education_id and user_id
+DELETE http://localhost:5000/users/1/identities/2/educations/5

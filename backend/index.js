@@ -2,12 +2,12 @@ import express from "express";
 import cors from "cors";
 import UserRoute from "./routes/UserRoute.js";
 import EducationRoute from "./routes/EducationRoute.js";
-import IdentityRoute from "./models/IdentityModel.js";
-import SocialMediaRoute from "./models/SocialMediaModel.js";
-import OrganizationRoute from "./models/OrganizationModel.js";
-import SkillRoute from "./models/SkillModel.js";
-import PortfolioRoute from "./models/PortfolioModel.js";
-import PortfolioImageRoute from "./models/PortfolioImageModel.js";
+import IdentityRoute from "./routes/IdentityRoute.js";
+import SocialMediaRoute from "./routes/SocialMediaRoute.js";
+import OrganizationRoute from "./routes/OrganizationRoute.js";
+import SkillRoute from "./routes/SkillRoute.js";
+import PortfolioRoute from "./routes/PortfolioRoute.js";
+import PortfolioImageRoute from "./routes/PortfolioImageRoute.js";
 
 const app = express();
 app.use(cors());

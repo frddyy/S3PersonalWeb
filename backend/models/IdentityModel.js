@@ -1,6 +1,10 @@
 import { Sequelize } from "sequelize";
 import db from "../config/Database.js";
-import User from "./UserModel.js";
+import Education from "./EducationModel.js";
+import Organization from "./OrganizationModel.js";
+import Skill from "./SkillModel.js";
+import Portfolio from "./PortfolioModel.js";
+import SocialMedia from "./SocialMediaModel.js";
 
 const { DataTypes } = Sequelize;
 
@@ -10,7 +14,7 @@ const Identity = db.define("identities",{
         allowNull: false
     },
     image: {
-        type: DataTypes.BLOB,
+        type: DataTypes.STRING,
         allowNull: false
     },
     place_of_birth: {
@@ -36,18 +40,25 @@ const Identity = db.define("identities",{
     description: {
         type: DataTypes.TEXT,
         allowNull: false 
-    },
-    user_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false 
-    },
+    }
   },{
     freezeTableName: true,
   }
 );
 
 // Define the foreign key relationship
-Identity.belongsTo(User, { foreignKey: 'user_id' });
+Identity.hasMany(Education);
+Identity.hasMany(Organization);
+Identity.hasMany(Skill);
+Identity.hasMany(Portfolio);
+Identity.hasMany(SocialMedia);
+
+Education.belongsTo(Identity);
+Organization.belongsTo(Identity);
+Skill.belongsTo(Identity);
+Portfolio.belongsTo(Identity);
+Skill.belongsTo(Identity);
+
 
 export default Identity;
 

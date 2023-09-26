@@ -34,25 +34,27 @@ export const createUser = async (req, res) => {
   export const updateUser = async (req, res) => {
     try {
       await User.update(req.body, {
-        where:{
+        where: {
           id: req.params.id
         }
       });
-      res.status(200).json({msg: "User Updated"});
+      res.status(200).json({ msg: "User Updated" });
     } catch (error) {
       console.log(error.message);
+      res.status(500).json({ error: "Internal server error" });
     }
   };
   
   export const deleteUser = async (req, res) => {
     try {
       await User.destroy({
-        where:{
+        where: {
           id: req.params.id
         }
       });
-      res.status(200).json({msg: "User Deleted"});
+      res.status(200).json({ msg: "User Deleted" });
     } catch (error) {
       console.log(error.message);
+      res.status(500).json({ error: "Internal server error" });
     }
   };

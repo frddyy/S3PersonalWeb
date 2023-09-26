@@ -1,5 +1,4 @@
 import Organization from "../models/OrganizationModel.js";
-import User from "../models/UserModel.js";
 
 export const getOrganization = async(req, res) => {
     try {
@@ -10,21 +9,35 @@ export const getOrganization = async(req, res) => {
     }
 }
 
-export const getOrganizationByUserId = async (req, res) => {
+
+export const getOrganizationById = async(req, res) => {
   try {
-    const userId = req.params.id; // Assuming you're getting the user ID from the request parameters
+      const response = await Organization.findOne({
+          where: {
+              id: req.params.id
+          }
+      })
+      res.status(200).json(response)
+  } catch (error) {
+      console.log(error.message)
+  }
+}
+
+export const getOrganizationByIdentityId = async (req, res) => {
+  try {
+    const identityId = req.params.id; // Assuming you're getting the user ID from the request parameters
 
     // Find the user by their ID
-    const user = await User.findByPk(userId);
+    const identity = await Organization.findByPk(identityId);
 
-    if (!user) {
+    if (!identity) {
       return res.status(404).json({ message: 'Organization not found' });
     }
 
     // Find education records associated with the user using the foreign key (user_id)
     const organizationRecords = await Organization.findAll({
       where: {
-        user_id: userId,
+        identityId: identityId,
       },
     });
 

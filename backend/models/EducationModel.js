@@ -1,6 +1,5 @@
 import { Sequelize } from "sequelize";
 import db from "../config/Database.js";
-import User from "./UserModel.js";
 
 const { DataTypes } = Sequelize;
 
@@ -12,7 +11,7 @@ const Education = db.define(
       allowNull: false,
     },
     image: {
-      type: DataTypes.BLOB,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     start_year: {
@@ -30,19 +29,12 @@ const Education = db.define(
     information: {
       type: DataTypes.TEXT,
       allowNull: true,
-    },
-    user_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false, // Assuming each education entry is associated with a user
-    },
+    }
   },
   {
     freezeTableName: true,
   }
 );
-
-// Define the foreign key relationship
-Education.belongsTo(User, { foreignKey: "user_id" });
 
 export default Education;
 

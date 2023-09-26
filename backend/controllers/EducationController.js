@@ -1,5 +1,4 @@
 import Education from "../models/EducationModel.js";
-import User from "../models/UserModel.js";
 
 // Get all education records
 export const getEducation = async (req, res) => {
@@ -12,15 +11,39 @@ export const getEducation = async (req, res) => {
   }
 };
 
-// Get education records by user_id
-export const getEducationByUserId = async (req, res) => {
+// Get education records by identity_id
+export const getEducationByIdentityId = async (req, res) => {
   try {
-    const userId = req.params.user_id; // Assuming the user_id is provided as a URL parameter
+    const identityId = req.params.identityId; // Assuming the user_id is provided as a URL parameter
     const educationData = await Education.findAll({
       where: {
-        user_id: userId,
+        identityId: identityId,
       },
     });
+
+    res.status(200).json(educationData);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Get education by education_id and user_id
+export const getEducationByEducationIdAndIdentityId = async (req, res) => {
+  try {
+    const identityId = req.params.identityId;
+    const educationId = req.params.educationId;
+
+    const educationData = await Education.findOne({
+      where: {
+        id: educationId,
+        identityId: identityId,
+      },
+    });
+
+    if (!educationData) {
+      return res.status(404).json({ error: "Education entry not found" });
+    }
 
     res.status(200).json(educationData);
   } catch (error) {
@@ -41,16 +64,16 @@ export const createEducation = async (req, res) => {
   }
 };
 
-// Update an education record by education_id and user_id
+// Update an education record by education_id and identity_id
 export const updateEducation = async (req, res) => {
   try {
-    const userId = req.params.user_id; // Assuming the user_id is provided as a URL parameter
-    const educationId = req.params.education_id; // Assuming the education_id is provided as a URL parameter
+    const identityId = req.params.identityId; // Assuming the user_id is provided as a URL parameter
+    const educationId = req.params.educationId; // Assuming the education_id is provided as a URL parameter
 
     const [updatedRowCount] = await Education.update(req.body, {
       where: {
         id: educationId,
-        user_id: userId,
+        identityId: identityId,
       },
     });
 
@@ -66,16 +89,16 @@ export const updateEducation = async (req, res) => {
   }
 };
 
-// Delete an education record by education_id and user_id
+// Delete an education record by education_id and identity_id
 export const deleteEducation = async (req, res) => {
   try {
-    const userId = req.params.user_id; // Assuming the user_id is provided as a URL parameter
-    const educationId = req.params.education_id; // Assuming the education_id is provided as a URL parameter
+    const identityId = req.params.identityId; // Assuming the user_id is provided as a URL parameter
+    const educationId = req.params.educationId; // Assuming the education_id is provided as a URL parameter
 
     const deletedRowCount = await Education.destroy({
       where: {
         id: educationId,
-        user_id: userId,
+        identityId: identityId,
       },
     });
 
@@ -85,30 +108,6 @@ export const deleteEducation = async (req, res) => {
     }
 
     res.status(200).json({ msg: "Education entry deleted" });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
-
-// Get education by education_id and user_id
-export const getEducationByEducationIdAndUserId = async (req, res) => {
-  try {
-    const userId = req.params.user_id;
-    const educationId = req.params.education_id;
-
-    const educationData = await Education.findOne({
-      where: {
-        id: educationId,
-        user_id: userId,
-      },
-    });
-
-    if (!educationData) {
-      return res.status(404).json({ error: "Education entry not found" });
-    }
-
-    res.status(200).json(educationData);
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: "Internal server error" });

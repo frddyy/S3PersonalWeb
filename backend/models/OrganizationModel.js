@@ -12,7 +12,7 @@ const Organization = db.define(
       allowNull: true,
     },
     image: {
-      type: DataTypes.BLOB,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     start_year: {
@@ -30,19 +30,13 @@ const Organization = db.define(
     jobdesc: {
       type: DataTypes.TEXT,
       allowNull: true,
-    },
-    user_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false, // Assuming each education entry is associated with a user
-    },
+    }
   },
   {
     freezeTableName: true,
   }
 );
 
-// Define the foreign key relationship
-Organization.belongsTo(User, { foreignKey: "user_id" });
 
 export default Organization;
 

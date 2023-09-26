@@ -1,5 +1,5 @@
 import Portfolio from "../models/PortfolioModel.js";
-import User from "../models/UserModel.js";
+import Identity from "../models/IdentityModel.js";
 
 export const getPortfolio = async(req, res) => {
     try {
@@ -10,21 +10,21 @@ export const getPortfolio = async(req, res) => {
     }
 }
 
-export const getPortfolioByUserId = async (req, res) => {
+export const getPortfolioByIdentityId = async (req, res) => {
   try {
-    const userId = req.params.id; // Assuming you're getting the user ID from the request parameters
+    const identityId = req.params.id; // Assuming you're getting the user ID from the request parameters
 
     // Find the user by their ID
-    const user = await User.findByPk(userId);
+    const identity = await Identity.findByPk(userId);
 
-    if (!user) {
+    if (!identity) {
       return res.status(404).json({ message: 'Portfolio not found' });
     }
 
     // Find education records associated with the user using the foreign key (user_id)
     const portfolioRecords = await Portfolio.findAll({
       where: {
-        user_id: userId,
+        identityId: identityId,
       },
     });
 
