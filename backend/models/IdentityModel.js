@@ -4,7 +4,6 @@ import Education from "./EducationModel.js";
 import Organization from "./OrganizationModel.js";
 import Skill from "./SkillModel.js";
 import Portfolio from "./PortfolioModel.js";
-import SocialMedia from "./SocialMediaModel.js";
 
 const { DataTypes } = Sequelize;
 
@@ -34,12 +33,28 @@ const Identity = db.define("identities",{
         allowNull: true
       },
     email: {
-    type: DataTypes.STRING,
-    allowNull: false
+      type: DataTypes.STRING,
+      allowNull: false
     },
     description: {
         type: DataTypes.TEXT,
         allowNull: false 
+    },
+    instagram: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    linkedin: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    twitter: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    github: {
+      type: DataTypes.STRING,
+      allowNull: true,
     }
   },{
     freezeTableName: true,
@@ -51,7 +66,6 @@ Identity.hasMany(Education);
 Identity.hasMany(Organization);
 Identity.hasMany(Skill);
 Identity.hasMany(Portfolio);
-Identity.hasMany(SocialMedia);
 
 Education.belongsTo(Identity);
 Organization.belongsTo(Identity);
