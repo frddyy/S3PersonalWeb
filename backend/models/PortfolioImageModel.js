@@ -26,3 +26,4 @@ export default PortfolioImage;
     console.error("Error synchronizing database:", error);
   }
 })();
+
