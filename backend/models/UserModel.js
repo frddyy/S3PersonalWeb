@@ -21,11 +21,11 @@ const User = db.define('users', {
     freezeTableName: true,
   });
 
+  User.hasOne(Identity);
+  Identity.belongsTo(User);
 
 export default User;
 
-User.hasOne(Identity);
-Identity.belongsTo(User);
 
 (async () => {
   try {

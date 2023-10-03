@@ -129,8 +129,6 @@ Content-Type: application/json
 ### Delete an education record by education_id and user_id
 DELETE http://localhost:5000/users/1/identities/2/educations/5
 
-
-
 ################ CRUD ORGANIZATION ################
 
 ### GET all organization records
@@ -139,7 +137,7 @@ GET http://localhost:5000/organizations
 ### GET organization records by identity id
 GET http://localhost:5000/users/1/identities/1/organizations
 
-### GET education records by identity id and organization id
+### GET organization records by identity id and organization id
 GET http://localhost:5000/users/1/identities/1/organizations/2
 
 ### Create a new organization record for a user
@@ -156,7 +154,7 @@ Content-Type: application/json
     "identityId": 2
 }
 
-### Update an education record by education_id and identity_id
+### Update an organization record by education_id and identity_id
 PATCH http://localhost:5000/users/1/identities/1/organizations/1
 Content-Type: application/json
 
@@ -169,5 +167,12 @@ Content-Type: application/json
     "jobdesc": "Some information about the jobdesc"
 }
 
-### Delete an education record by education_id and user_id
+### Delete an organizations record by education_id and user_id
 DELETE http://localhost:5000/users/1/identities/2/organizations/1
+
+### GET education records by identity id
+GET http://localhost:5000/users/1/identities/2/portfolios
+
+### Delete an education record by education_id and user_id
+GET http://localhost:5000/portfolios
+
