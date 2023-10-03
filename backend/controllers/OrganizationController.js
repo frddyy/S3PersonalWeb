@@ -1,4 +1,21 @@
 import Organization from "../models/OrganizationModel.js";
+import path from 'path';
+import multer from 'multer';
+
+// Configure multer to specify where to store uploaded files and their names.
+const storage = multer.diskStorage({
+  destination: (req, file, callback) => {
+    callback(null, 'src/img/organization'); // Define the destination folder
+  },
+  filename: (req, file, callback) => {
+    // Define the filename for the uploaded file
+    const extensionName = path.extname(file.originalname);
+    const filename = "organization_"+req.body.name_org + extensionName;
+    callback(null, filename);
+  },
+});
+
+const upload = multer({ storage: storage });
 
 // Get all organization records
 export const getOrganization = async (req, res) => {
@@ -52,15 +69,53 @@ export const getOrganizationByOrganizationIdAndIdentityId = async (req, res) => 
   }
 };
 
-// Create a new organization record
+// // Create a new organization record
+// export const createOrganization = async (req, res) => {
+//   try {
+//     const createdOrganization = await Organization.create(req.body);
+//     res.status(200).json({ msg: "Organization created" });
+//     res.status(201).json(createdOrganization);
+//   } catch (error) {
+//     console.error(error.message);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
 export const createOrganization = async (req, res) => {
   try {
-    const createdOrganization = await Organization.create(req.body);
-    res.status(200).json({ msg: "Organization created" });
-    res.status(201).json(createdOrganization);
+    if (!req.body) {
+      return res.status(400).send({
+        message: "Data tidak boleh kosong!"
+      });
+    }
+
+    // Use the multer upload middleware to handle file uploads
+    upload.single('image')(req, res, async (err) => {
+      if (err) {
+        return res.status(500).send({
+          message: "File cannot upload"
+        });
+      }
+
+      // File upload was successful, now you can access req.file
+      const file_name = req.file.filename;
+
+      // Rest of your code to upload to the database and send the response
+      var data = {
+        name_org: req.body.name_org,
+        image: file_name,
+        start_year: req.body.start_year,
+        end_year: req.body.end_year,
+        role: req.body.role,
+        jobdesc: req.body.jobdesc
+      };
+
+      const createdOrganization = await Organization.create(data);
+      res.status(201).json(createdOrganization);
+    });
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -113,3 +168,4 @@ export const deleteOrganization = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+

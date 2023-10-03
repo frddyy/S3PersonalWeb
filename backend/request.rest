@@ -143,17 +143,17 @@ GET http://localhost:5000/users/1/identities/1/organizations
 GET http://localhost:5000/users/1/identities/1/organizations/2
 
 ### Create a new organization record for a user
-POST http://localhost:5000/users/1/identities/1/organizations
+POST http://localhost:5000/users/2/identities/2/organizations
 Content-Type: application/json
 
 {
-    "name_org": "Himpunan Mahasiswa Komputer",
+    "name_org": "AIESEC",
     "image": null,
-    "start_year": 2021,
+    "start_year": 2020,
     "end_year": 2023,
-    "role": "Human Resource Department Member",
+    "role": "Leader",
     "jobdesc": "Some information about the jobdesc",
-    "identityId": 1
+    "identityId": 2
 }
 
 ### Update an education record by education_id and identity_id
