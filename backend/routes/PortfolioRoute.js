@@ -24,5 +24,4 @@ router.patch('/users/:userId/identities/:identityId/portfolios', updatePortfolio
 // Delete a portfolio record
 router.delete('/users/:userId/identities/:identityId/portfolios', deletePortfolio);
 
-
 export default router;

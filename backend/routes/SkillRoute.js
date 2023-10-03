@@ -1,8 +1,5 @@
 import express from "express";
-import {
-  getSkill,
-  getSkillByIdentityId,
-} from "../controllers/SkillController.js";
+import { getSkill, getSkillByIdentityId, createSkill, updateSkill, deleteSkill } from "../controllers/SkillController.js";
 
 const router = express.Router();
 
@@ -10,9 +7,12 @@ const router = express.Router();
 router.get("/skills", getSkill);
 
 // Route to get Skill records by user ID
-router.get(
-  "/users/:userId/identities/:identityId/skills",
-  getSkillByIdentityId
-);
+router.get("/users/:userId/identities/:identityId/skills", getSkillByIdentityId);
+
+router.post("/skill", createSkill);
+
+router.patch("/skill/:identityId/:id", updateSkill);
+
+router.delete("/skill/:identityId/:id", deleteSkill);
 
 export default router;

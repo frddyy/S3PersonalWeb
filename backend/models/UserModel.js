@@ -14,7 +14,7 @@ const User = db.define('users', {
       allowNull: false, // Add validation for password not to be null
     },
     role: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false, // Add validation for role not to be null
     }
   }, {
@@ -25,7 +25,6 @@ const User = db.define('users', {
   Identity.belongsTo(User);
 
 export default User;
-
 
 (async () => {
   try {

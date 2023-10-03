@@ -7,7 +7,7 @@ const { DataTypes } = Sequelize;
 const Organization = db.define(
   "organizations",
   {
-    name_org: {               //change name from name to name_org
+    name_org: {         
       type: DataTypes.STRING,
       allowNull: true,
     },
@@ -24,7 +24,7 @@ const Organization = db.define(
       allowNull: true,
     },
     role: {                   
-      type: DataTypes.TEXT, //change type into text
+      type: DataTypes.STRING, 
       allowNull: true,
     },
     jobdesc: {
