@@ -10,7 +10,7 @@ export const getSkill = async (req, res) => {
     }
 };
 
-export const getSkillByIdentityId = async (req, res) => {
+export const getSkillById = async (req, res) => {
     try {
         const identityId = req.params.id; // Assuming you're getting the user ID from the request parameters
 

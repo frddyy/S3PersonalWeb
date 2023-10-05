@@ -1,4 +1,6 @@
 import Identity from "../models/IdentityModel.js";
+import User from "../models/UserModel.js";
+import { Op } from "sequelize";
 import Multer from 'multer';
 
 // Configure multer to specify where to store uploaded files and their names.
@@ -19,166 +21,205 @@ const upload = Multer({ storage: storage });
 // Mendapatkan semua identitas
 export const getIdentity = async (req, res) => {
   try {
-    const identities = await Identity.findAll();
-    res.status(200).json(identities);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
-
-// Mendapatkan identitas berdasarkan ID
-export const getIdentityById = async (req, res) => {
-  const identityId = req.params.id;
-
-  try {
-    const identity = await Identity.findByPk(identityId);
-
-    if (!identity) {
-      return res.status(404).json({ message: "Identity not found" });
+    let response;
+    if(req.role === "admin"){
+      response = await Identity.findAll({
+        include: [{
+          model: User,
+          attributes: ['username', 'role']
+        }]
+      });
+    } else {
+      response = await Identity.findAll({
+        where : {
+          userId : req.userId
+        },
+        include: [{
+          model: User,
+          attributes: ['username', 'role']
+        }]
+      });
     }
-
-    res.status(200).json(identity);
+    res.status(200).json(response);
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ msg: error.message });
   }
 };
 
-// Mendapatkan identitas berdasarkan user_id
-export const getIdentityByUserId = async (req, res) => {
-  const userId = req.params.userId;
-
+// Mendapatkan identitas berdasarkan user ID
+export const getIdentityById = async (req, res) => {
   try {
-    const identities = await Identity.findAll({
+    const identity = await Identity.findOne({
       where: {
-        userId: userId,
-      },
+        id: req.params.id
+      }
     });
 
-    res.status(200).json(identities);
+    if (!identity) return res.status(404).json({ msg: "Data tidak ditemukan" });
+
+    let response;
+    if (req.role === "admin" || identity.userId === req.userId) {
+      response = await Identity.findOne({
+        where: {
+          id: identity.id
+        },
+        include: [{
+          model: User,
+          attributes: ['username', 'role']
+        }]
+      });
+    } else {
+      response = await Identity.findOne({
+        where: {
+          [Op.and] : [{id: identity.id}, {userId: req.userId }]
+        },
+        include: [{
+          model: User,
+          attributes: ['username', 'role']
+        }]
+      });
+    }
+    res.status(200).json(response); 
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ msg: error.message });
   }
 };
+
+
+
+
+
 
 // Create a new identity record
 export const createIdentity = async (req, res) => {
+  const {
+    name, 
+    image, 
+    place_of_birth,
+    date_of_birth,
+    address,
+    phone_number,
+    email,
+    description,
+    instagram,
+    linkedin,
+    twitter,
+    github
+  } = req.body;
+
   try {
-    if (!req.body) {
-      return res.status(400).send({
-        message: "Data tidak boleh kosong!"
-      });
-    }
+    // if (!req.body) { 
+    //   return res.status(400).send({
+    //   message: "Data tidak boleh kosong!"
+    //   });
+    // }
 
-    // Use the multer upload middleware to handle file uploads
-    upload.single('attachment')(req, res, async (err) => {
-      if (err) {
-        return res.status(500).send({
-          message: "File cannot upload"
-        });
-      }
+    // // Use the multer upload middleware to handle file uploads
+    // upload.single('attachment')(req, res, async (err) => {
+    //   if (err) {
+    //     return res.status(500).send({
+    //       message: "File cannot upload"
+    //     });
+    //   }
+    // });
 
-      // File upload was successful, now you can access req.file
-      const file_name = req.file.filename;
-
-      // Rest of your code to upload to the database and send the response
-      var data = {
-        name: req.body.name,
-        image: file_name,
-        place_of_birth: req.body.place_of_birth,
-        date_of_birth: req.body.date_of_birth,
-        address: req.body.address,
-        phone_number: req.body.phone_number,
-        email: req.body.email,
-        description: req.body.description,
-        instagram: req.body.instagram,
-        linkedin: req.body.linkedin,
-        twittter: req.body.twittter,
-        github: req.body.github
-
-      };
-
-      const createdIdentity = await Identity.create(data);
-      res.status(201).json(createdIdentity);
+    //   // File upload was successful, now you can access req.file
+    // const file_name = req.file.filename;
+   
+    await Identity.create({
+      name: name, 
+      // image: file_name,
+      image: image, 
+      place_of_birth: place_of_birth,
+      date_of_birth: date_of_birth,
+      address: address,
+      phone_number: phone_number,
+      email: email,
+      description: description,
+      instagram: instagram,
+      linkedin: linkedin,
+      twitter: twitter,
+      github: github,
+      userId: req.userId
     });
+    res.status(201).json({msg: "Identity Created Successfully"});
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({msg: error.message});
   }
-};
+}
 
 
 export const updateIdentity = async (req, res) => {
   try {
-    const userId = req.params.userId; // Merujuk ke user_id
-    const identityId = req.params.identityId; // Merujuk ke identity_id
-
-    const [updatedRowCount] = await Identity.update(req.body, {
+    const identity = await Identity.findOne({
       where: {
-        id: identityId,
-        userId: userId, // Merujuk ke user_id
-      },
+        id: req.params.id
+      }
     });
 
-    if (updatedRowCount === 0) {
-      return res.status(404).json({ error: "Resource not found" });
+    if (!identity) return res.status(404).json({ msg: "Data tidak ditemukan" });
+    const {
+      name, 
+      image, 
+      place_of_birth,
+      date_of_birth,
+      address,
+      phone_number,
+      email,
+      description,
+      instagram,
+      linkedin,
+      twitter,
+      github
+    } = req.body;
+    if (req.role === "admin" || identity.userId === req.userId) {
+      await Identity.update({name, image, place_of_birth, date_of_birth, address,
+      phone_number, email, description, instagram, linkedin, twitter, github}, {
+        where: {
+          id: identity.id
+        }
+      });
+    } else {
+      if(req.userId !== identity.userId) return res.status(403).json({msg: "Akses terlarang"});
+      await Identity.update({name, image, place_of_birth, date_of_birth, address,
+        phone_number, email, description, instagram, linkedin, twitter, github}, {
+          where: {
+            [Op.and] : [{id: identity.id}, {userId: req.userId }]
+          }
+        });
     }
-
-    res.status(200).json({ msg: "Identity entry updated" });
+    res.status(200).json({msg: "Identity updated succesfully"}); 
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ msg: error.message });
   }
 };
+
 
 export const deleteIdentity = async (req, res) => {
   try {
-    const userId = req.params.userId;
-    const identityId = req.params.identityId;
-
-    // Menggunakan destroy untuk menghapus identitas berdasarkan kriteria
-    const deletedRowCount = await Identity.destroy({
+    const identity = await Identity.findOne({
       where: {
-        id: identityId,
-        userId: userId,
-      },
+        id: req.params.id
+      }
     });
 
-    if (deletedRowCount === 0) {
-      return res.status(404).json({ error: "Resource not found" });
+    if (!identity) return res.status(404).json({ msg: "Data tidak ditemukan" });
+    if (req.role === "admin" || identity.userId === req.userId) {
+      await Identity.destroy({
+        where: {
+          id: identity.id
+        }
+      });
+    } else {
+      if(req.userId !== identity.userId) return res.status(403).json({msg: "Akses terlarang"});
+      await Identity.destroy({
+          where: {
+            [Op.and] : [{id: identity.id}, {userId: req.userId }]
+          }
+        });
     }
-
-    res.status(200).json({ msg: "Identity entry deleted" });
+    res.status(200).json({msg: "Identity deleted succesfully"}); 
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ msg: error.message });
   }
-};
-
-
-// Get education by education_id and user_id
-export const getIdentityByIdentityIdAndUserId = async (req, res) => {
-  try {
-    const userId = req.params.userId;
-    const identityId = req.params.identityId;
-
-    const identityData = await Identity.findOne({
-      where: {
-        id: identityId,
-        userId: userId,
-      },
-    });
-
-    if (!identityData) {
-      return res.status(404).json({ error: "Identity entry not found" });
-    }
-
-    res.status(200).json(identityData);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Internal server error" });
-  }
-
 };

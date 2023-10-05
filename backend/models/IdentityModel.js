@@ -9,32 +9,53 @@ const { DataTypes } = Sequelize;
 
 const Identity = db.define("identities",{
     name: {
-        type: DataTypes.STRING,
-        allowNull: false
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+        len: [3, 100]
+      }
     },
     image: {
-        type: DataTypes.STRING,
-        allowNull: false
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
     },
     place_of_birth: {
-        type: DataTypes.STRING,
-        allowNull: false
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
     },
     date_of_birth: {
         type: DataTypes.DATEONLY,
         allowNull: false
     },
     address: {
-        type: DataTypes.TEXT,
-        allowNull: false
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
     },
     phone_number: {
-        type: DataTypes.STRING,
-        allowNull: true
+      type: DataTypes.STRING,
+      allowNull: true,
+      validate: {
+        notEmpty: true,
+        len: [10, 15]
+      }
       },
     email: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+        isEmail: true
+      }
     },
     description: {
         type: DataTypes.TEXT,
@@ -76,12 +97,12 @@ Skill.belongsTo(Identity);
 
 export default Identity;
 
-(async () => {
-    try {
-      await db.sync();
-      console.log("Database synchronized");
-    } catch (error) {
-      console.error("Error synchronizing database:", error);
-    }
-  })();
+// (async () => {
+//     try {
+//       await db.sync();
+//       console.log("Database synchronized");
+//     } catch (error) {
+//       console.error("Error synchronizing database:", error);
+//     }
+//   })();
 

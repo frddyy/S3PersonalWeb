@@ -29,7 +29,7 @@ export const getOrganization = async (req, res) => {
 };
 
 
-export const getOrganizationByIdentityId = async (req, res) => {
+export const getOrganizationById = async (req, res) => {
   try {
     const identityId = req.params.identityId; // Assuming the user_id is provided as a URL parameter
     const organizationData = await Organization.findAll({

@@ -1,0 +1,121 @@
+// =================== CRUD USER ====================
+// Create a user
+POST http://localhost:5000/users
+Content-Type: application/json
+
+{
+    "username": "rakamahardika",
+    "password": "12345678",
+    "confirmPassword": "12345678",
+    "role": "user"
+}
+
+###
+// Get All Users
+GET http://localhost:5000/users
+
+###
+// Get Single User
+GET http://localhost:5000/users/e198f559-9073-4560-ae0c-78d44389495b
+
+###
+// Update a user
+PATCH http://localhost:5000/users/e198f559-9073-4560-ae0c-78d44389495b
+Content-Type: application/json
+
+{
+    "username": "kingcinunuk",
+    "password": "",
+    "confirmPassword": "",
+    "role": "user"
+}
+
+###
+// Delete a user
+DELETE http://localhost:5000/users/e198f559-9073-4560-ae0c-78d44389495b
+
+###
+// Login User Admin
+POST http://localhost:5000/login
+Content-Type: application/json
+
+{
+    "username" : "ferdyfauzan",
+    "password" : "12345678"
+}
+
+###
+// Login User
+POST http://localhost:5000/login
+Content-Type: application/json
+
+{
+    "username" : "rakamahardika",
+    "password" : "12345678"
+}
+
+###
+// Me
+GET http://localhost:5000/me
+
+###
+// Logout User
+DELETE http://localhost:5000/logout
+
+// =================== CRUD IDENTITY ====================
+
+###
+// Get All Identities
+GET http://localhost:5000/identities
+
+###
+// Get Single Identities
+GET http://localhost:5000/identities/3
+
+### 
+// Create Identity Data
+POST http://localhost:5000/identities
+Content-Type: application/json
+
+{
+    "name": "Mochamad Ferdy Fauzan",
+    "image": "https://example.com/ferdy.jpg",
+    "place_of_birth": "Garut",
+    "date_of_birth": "2003-01-13",
+    "address": "Komplek Serra Valley D6, Bandung",
+    "phone_number": "085156600480",
+    "email": "m.ferdyfauzan@example.com",
+    "description": "A passionate web developer with a love for coding.",
+    "userId": 1
+}
+
+### 
+// Create Identity Data
+POST http://localhost:5000/identities
+Content-Type: application/json
+
+{
+    "name": "Raka Mahardika Maulana",
+    "image": "https://example.com/raka.jpg",
+    "place_of_birth": "Bandung",
+    "date_of_birth": "2003-08-17",
+    "address": "Cinunuk, Bandung",
+    "phone_number": "08184222222",
+    "email": "rakamahardika@example.com",
+    "description": "A passionate web developer with a love for coding.",
+    "userId": 3
+}
+
+### 
+// Update Identity Data
+PATCH http://localhost:5000/identities/3
+Content-Type: application/json
+
+{
+    
+    "twitter": "@cinunukkingdom"
+}
+
+### 
+// Delete Identity Data
+DELETE http://localhost:5000/identities/3

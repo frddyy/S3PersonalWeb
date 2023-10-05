@@ -18,12 +18,12 @@ const PortfolioImage = db.define(
 
 export default PortfolioImage;
 
-(async () => {
-  try {
-    await db.sync();
-    console.log("Database synchronized");
-  } catch (error) {
-    console.error("Error synchronizing database:", error);
-  }
-})();
+// (async () => {
+//   try {
+//     await db.sync();
+//     console.log("Database synchronized");
+//   } catch (error) {
+//     console.error("Error synchronizing database:", error);
+//   }
+// })();
 

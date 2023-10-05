@@ -1,8 +1,7 @@
 import express from "express";
 import { 
     getOrganization,
-    getOrganizationByIdentityId,
-    getOrganizationByOrganizationIdAndIdentityId,
+    getOrganizationById,
     createOrganization,
     updateOrganization,
     deleteOrganization
@@ -11,17 +10,15 @@ import {
 const router = express.Router();
 
 // Route to get all organization records
-router.get('/organizations', getOrganization);
+router.get('/identities/:identityId/organizations', getOrganization);
 
-router.get('/users/:userId/identities/:identityId/organizations', getOrganizationByIdentityId);
+router.get('/identities/:identityId/organizations/:organizationId', getOrganizationById);
 
-router.get('/users/:userId/identities/:identityId/organizations/:organizationId', getOrganizationByOrganizationIdAndIdentityId);
+router.post('/identities/:identityId/organizations', createOrganization);
 
-router.post('/users/:userId/identities/:identityId/organizations', createOrganization);
+router.patch('/identities/:identityId/organizations/:organizationId', updateOrganization);
 
-router.patch('/users/:userId/identities/:identityId/organizations/:organizationId', updateOrganization);
-
-router.delete('/users/:userId/identities/:identityId/organizations/:organizationId', deleteOrganization);
+router.delete('/identities/:identityId/organizations/:organizationId', deleteOrganization);
 
 
 export default router;

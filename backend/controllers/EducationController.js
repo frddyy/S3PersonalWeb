@@ -12,7 +12,7 @@ export const getEducation = async (req, res) => {
 };
 
 // Get education records by identity_id
-export const getEducationByIdentityId = async (req, res) => {
+export const getEducationById = async (req, res) => {
   try {
     const identityId = req.params.identityId; // Assuming the user_id is provided as a URL parameter
     const educationData = await Education.findAll({

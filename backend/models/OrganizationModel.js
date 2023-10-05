@@ -40,11 +40,11 @@ const Organization = db.define(
 
 export default Organization;
 
-(async () => {
-  try {
-    await db.sync();
-    console.log("Database synchronized");
-  } catch (error) {
-    console.error("Error synchronizing database:", error);
-  }
-})();
+// (async () => {
+//   try {
+//     await db.sync();
+//     console.log("Database synchronized");
+//   } catch (error) {
+//     console.error("Error synchronizing database:", error);
+//   }
+// })();

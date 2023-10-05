@@ -1,8 +1,7 @@
 import express from "express";
 import { 
     getEducation,
-    getEducationByIdentityId,
-    getEducationByEducationIdAndIdentityId,
+    getEducationById,
     createEducation,
     updateEducation,
     deleteEducation
@@ -11,17 +10,15 @@ import {
 const router = express.Router();
 
 // Route to get all education records
-router.get('/educations', getEducation);
+router.get('/identities/:identityId/educations', getEducation);
 
-router.get('/users/:userId/identities/:identityId/educations', getEducationByIdentityId);
+router.get('/identities/:identityId/educations/:educationId', getEducationById);
 
-router.get('/users/:userId/identities/:identityId/educations/:educationId', getEducationByEducationIdAndIdentityId);
+router.post('/identities/:identityId/educations', createEducation);
 
-router.post('/users/:userId/identities/:identityId/educations', createEducation);
+router.patch('identities/:identityId/educations/:educationId', updateEducation);
 
-router.patch('/users/:userId/identities/:identityId/educations/:educationId', updateEducation);
-
-router.delete('/users/:userId/identities/:identityId/educations/:educationId', deleteEducation);
+router.delete('/identities/:identityId/educations/:educationId', deleteEducation);
 
 
 export default router;

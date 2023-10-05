@@ -2,7 +2,7 @@ import express from "express";
 import { 
     createPortfolio,
     getPortfolio,
-    getPortfolioByIdentityId,
+    getPortfolioById,
     updatePortfolio,
     deletePortfolio
  } from "../controllers/PortfolioController.js";
@@ -10,18 +10,18 @@ import {
 const router = express.Router();
 
 // Route to get all education records
-router.get('/portfolios', getPortfolio);
+router.get('identities/:identityId/portfolios', getPortfolio);
 
 // Route to get Skill records by user ID
-router.get('/users/:userId/identities/:identityId/portfolios', getPortfolioByIdentityId);
+router.get('/identities/:identityId/portfolios/:portfolioId', getPortfolioById);
 
 // Create a portfolio record
-router.post('/users/:userId/identities/:identityId/portfolios', createPortfolio);
+router.post('identities/:identityId/portfolios', createPortfolio);
 
 // Update a portfolio record
-router.patch('/users/:userId/identities/:identityId/portfolios', updatePortfolio);
+router.patch('/identities/:identityId/portfolios/:portfolioId', updatePortfolio);
 
 // Delete a portfolio record
-router.delete('/users/:userId/identities/:identityId/portfolios', deletePortfolio);
+router.delete('/identities/:identityId/portfolios/:portfolioId', deletePortfolio);
 
 export default router;
