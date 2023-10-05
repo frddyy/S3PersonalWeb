@@ -1,6 +1,8 @@
 import Organization from "../models/OrganizationModel.js";
 import path from 'path';
+import { Op } from "sequelize";
 import multer from 'multer';
+import Identity from "../models/IdentityModel.js";
 
 // Configure multer to specify where to store uploaded files and their names.
 const storage = multer.diskStorage({
@@ -17,155 +19,126 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Get all organization records
 export const getOrganization = async (req, res) => {
   try {
-    const response = await Organization.findAll();
+    let response = await Organization.findAll({
+        where: {
+          identityId: req.params.identityId
+        },
+        include: [{
+          model: Identity,
+          attributes: ['name']
+        }]
+      });
     res.status(200).json(response);
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Internal server error" });
+    console.log(error)
   }
-};
-
+}
 
 export const getOrganizationById = async (req, res) => {
   try {
-    const identityId = req.params.identityId; // Assuming the user_id is provided as a URL parameter
-    const organizationData = await Organization.findAll({
+    const organization = await Organization.findOne({
       where: {
-        identityId: identityId
-      },
+        id: req.params.organizationId
+      }
     });
 
-    res.status(200).json(organizationData);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+    if (!organization) return res.status(404).json({ msg: "Data tidak ditemukan" });
 
-// Get organization by organization_id and identity_id
-export const getOrganizationByOrganizationIdAndIdentityId = async (req, res) => {
-  try {
-    const identityId = req.params.identityId;
-    const organizationId = req.params.organizationId;
-
-    const organizationData = await  Organization.findOne({
+    let response;
+    response = await Organization.findOne({
       where: {
-        id: organizationId,
-        identityId: identityId,
+        [Op.and] : [{id: organization.id}, {identityId: req.params.identityId }]
       },
+      include: [{
+        model: Identity,
+        attributes: ['name']
+      }]
     });
-
-    if (!organizationData) {
-      return res.status(404).json({ error: "Organization entry not found" });
-    }
-
-    res.status(200).json(organizationData);
+    res.status(200).json(response); 
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ msg: error.message });
   }
-};
-
-// // Create a new organization record
-// export const createOrganization = async (req, res) => {
-//   try {
-//     const createdOrganization = await Organization.create(req.body);
-//     res.status(200).json({ msg: "Organization created" });
-//     res.status(201).json(createdOrganization);
-//   } catch (error) {
-//     console.error(error.message);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// };
+}
 
 export const createOrganization = async (req, res) => {
-  try {
-    if (!req.body) {
-      return res.status(400).send({
-        message: "Data tidak boleh kosong!"
-      });
-    }
+  const {
+    name_org, image, start_year, end_year, role,
+    jobdesc
+  } = req.body;
 
-    // Use the multer upload middleware to handle file uploads
-    upload.single('image')(req, res, async (err) => {
-      if (err) {
-        return res.status(500).send({
-          message: "File cannot upload"
-        });
-      }
-
-      // File upload was successful, now you can access req.file
-      const file_name = req.file.filename;
-
-      // Rest of your code to upload to the database and send the response
-      var data = {
-        name_org: req.body.name_org,
-        image: file_name,
-        start_year: req.body.start_year,
-        end_year: req.body.end_year,
-        role: req.body.role,
-        jobdesc: req.body.jobdesc
-      };
-
-      const createdOrganization = await Organization.create(data);
-      res.status(201).json(createdOrganization);
+  try {   
+    await Organization.create({
+      name_org: name_org, 
+      image: image, 
+      start_year: start_year,
+      end_year: end_year,
+      role: role,
+      jobdesc: jobdesc,
+      identityId: req.params.identityId
     });
+    res.status(201).json({msg: "Organization Created Successfully"});
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({msg: error.message});
   }
-};
+}
 
-// Update an organization record by id
 export const updateOrganization = async (req, res) => {
   try {
-    const identityId = req.params.identityId; // Assuming the user_id is provided as a URL parameter
-    const organizationId = req.params.organizationId; // Assuming the organization_id is provided as a URL parameter
-
-    const [updatedRowCount] = await Organization.update(req.body, {
+    const organization = await Organization.findOne({
       where: {
-        id: organizationId,
-        identityId: identityId,
-      },
+        id: req.params.organizationId
+      }
     });
+    
 
-    if (updatedRowCount === 0) {
-      // No matching organization entry found
-      return res.status(404).json({ error: "Organization entry not found" });
-    }
+    if (!organization) return res.status(404).json({ msg: "Data tidak ditemukan" });
 
-    res.status(200).json({ msg: "Organization entry updated" });
+    const {
+      name_org, image, start_year, end_year, role,
+      jobdesc
+    } = req.body;
+
+    if(req.params.identityId == organization.identityId) {
+      await Organization.update({name_org, image, start_year, end_year, 
+        role, jobdesc}, {
+          where: {
+            [Op.and] : [{id: organization.id}, {identityId: req.params.identityId }]
+          }
+        });
+    } else {
+      return res.status(403).json({msg: "Akses terlarang"});
+    } 
+    
+    res.status(200).json({msg: "Organization updated successfully"}); 
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ msg: error.message });
   }
-};
+}
 
-// Delete an organization record by id
 export const deleteOrganization = async (req, res) => {
   try {
-    const identityId = req.params.identityId; // Assuming the user_id is provided as a URL parameter
-    const organizationId = req.params.organizationId; // Assuming the organization_id is provided as a URL parameter
-
-    const deletedRowCount = await Organization.destroy({
+    const organization = await Organization.findOne({
       where: {
-        id: organizationId,
-        identityId: identityId,
-      },
+        id: req.params.organizationId
+      }
     });
+    
+    if (!organization) return res.status(404).json({ msg: "Data tidak ditemukan" });
 
-    if (deletedRowCount === 0) {
-      // No matching organization entry found
-      return res.status(404).json({ error: "Organization entry not found" });
-    }
-
-    res.status(200).json({ msg: "Organization entry deleted" });
+    if(req.params.identityId == organization.identityId) {
+      await Organization.destroy({
+          where: {
+            [Op.and] : [{id: organization.id}, {identityId: req.params.identityId }]
+          }
+        });
+    } else {
+      return res.status(403).json({msg: "Akses terlarang"});
+    } 
+    
+    res.status(200).json({msg: "Organization deleted successfully"}); 
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ msg: error.message });
   }
-};
-
+}

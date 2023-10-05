@@ -1,5 +1,5 @@
 import Identity from "../models/IdentityModel.js";
-import User from "../models/UserModel.js";
+import User from "../models/UserModel.js"; 
 import { Op } from "sequelize";
 import Multer from 'multer';
 
@@ -46,7 +46,7 @@ export const getIdentity = async (req, res) => {
   }
 };
 
-// Mendapatkan identitas berdasarkan user ID
+// Mendapatkan identitas berdasarkan ID
 export const getIdentityById = async (req, res) => {
   try {
     const identity = await Identity.findOne({
@@ -79,6 +79,7 @@ export const getIdentityById = async (req, res) => {
         }]
       });
     }
+    console.log("Req.role: ", req.role)
     res.status(200).json(response); 
   } catch (error) {
     res.status(500).json({ msg: error.message });
@@ -188,6 +189,7 @@ export const updateIdentity = async (req, res) => {
           }
         });
     }
+    
     res.status(200).json({msg: "Identity updated succesfully"}); 
   } catch (error) {
     res.status(500).json({ msg: error.message });

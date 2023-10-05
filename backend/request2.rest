@@ -4,10 +4,10 @@ POST http://localhost:5000/users
 Content-Type: application/json
 
 {
-    "username": "rakamahardika",
+    "username": "syifaadmin",
     "password": "12345678",
     "confirmPassword": "12345678",
-    "role": "user"
+    "role": "admin"
 }
 
 ###
@@ -40,7 +40,7 @@ POST http://localhost:5000/login
 Content-Type: application/json
 
 {
-    "username" : "ferdyfauzan",
+    "username" : "syifaadmin",
     "password" : "12345678"
 }
 
@@ -70,7 +70,7 @@ GET http://localhost:5000/identities
 
 ###
 // Get Single Identities
-GET http://localhost:5000/identities/3
+GET http://localhost:5000/identities/1
 
 ### 
 // Create Identity Data
@@ -87,6 +87,23 @@ Content-Type: application/json
     "email": "m.ferdyfauzan@example.com",
     "description": "A passionate web developer with a love for coding.",
     "userId": 1
+}
+
+### 
+// Create Identity Data
+POST http://localhost:5000/identities
+Content-Type: application/json
+
+{
+    "name": "Syifa Khairina",
+    "image": "https://example.com/syifa.jpg",
+    "place_of_birth": "Bandung",
+    "date_of_birth": "2003-01-01",
+    "address": "Jl. Terusan Ciliwung, Bandung",
+    "phone_number": "087878876632",
+    "email": "syifa.khairina@example.com",
+    "description": "A passionate web developer with a love for coding.",
+    "userId": 2
 }
 
 ### 
@@ -119,3 +136,41 @@ Content-Type: application/json
 ### 
 // Delete Identity Data
 DELETE http://localhost:5000/identities/3
+
+// =================== CRUD ORGANIZATION ====================
+
+###
+// Get All Organizations
+GET http://localhost:5000/identities/1/organizations
+
+###
+// Create an organization
+POST http://localhost:5000/identities/1/organizations
+Content-Type: application/json
+
+{
+    "name_org": "Brigez", 
+    "image": "http://www.example.com/brigez.jpg", 
+    "start_year": 2021,
+    "end_year": 2023,
+    "role": "Wakadep PSDA",
+    "jobdesc": "Bantuin Kadep"
+}
+
+###
+// Get Single Organization
+GET http://localhost:5000/identities/1/organizations/3
+
+### 
+// Update Organization Data
+PATCH http://localhost:5000/identities/1/organizations/3
+Content-Type: application/json
+
+{
+    
+    "name_org": "HIMAJAS"
+}
+
+### 
+// Delete Organization Data
+DELETE http://localhost:5000/identities/1/organizations/2
