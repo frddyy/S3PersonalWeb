@@ -1,8 +1,9 @@
 import React from "react";
-import { UseSelector, useSelector } from "react-redux/es/hooks/useSelector";
+import { useSelector } from "react-redux/es/hooks/useSelector";
 
 const Welcome = () => {
   const { user } = useSelector((state) => state.auth);
+  const { identity } = useSelector((state) => state.auth);
   return (
     <div>
       <h1 className="title">Dashboard</h1>
