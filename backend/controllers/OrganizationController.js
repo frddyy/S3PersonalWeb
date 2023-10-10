@@ -3,17 +3,32 @@ import path from "path";
 import { Op } from "sequelize";
 import multer from "multer";
 import Identity from "../models/IdentityModel.js";
+import fs from "fs";
 
 // Configure multer to specify where to store uploaded files and their names.
 const storage = multer.diskStorage({
     destination: (req, file, callback) => {
         callback(null, "src/image/organization"); // Define the destination folder
     },
-    filename: (req, file, callback) => {
-        // Define the filename for the uploaded file
-        const extensionName = path.extname(file.originalname);
-        const filename = "organization_" + req.body.name_org + extensionName;
-        callback(null, filename);
+    filename: async (req, file, callback) => {
+        try {
+            // Get the associated Identity's name
+            const identity = await Identity.findOne({
+                where: {
+                    id: req.params.identityId,
+                },
+            });
+
+            if (!identity) {
+                throw new Error("Identity not found");
+            }
+
+            const extensionName = path.extname(file.originalname);
+            const filename = `${identity.name}_organization_${req.body.name_org}${extensionName}`;
+            callback(null, filename);
+        } catch (error) {
+            callback(error, null);
+        }
     },
 });
 
@@ -105,22 +120,40 @@ export const updateOrganization = async (req, res) => {
 
         if (!organization) return res.status(404).json({ msg: "Data tidak ditemukan" });
 
-        const { name_org, image, start_year, end_year, role, jobdesc } = req.body;
+        upload.single("image")(req, res, async (err) => {
+            if (err) {
+                return res.status(500).send({
+                    message: "File cannot upload",
+                });
+            }
+            const file_name = req.file.filename;
+            const { name_org, start_year, end_year, role, jobdesc } = req.body;
 
-        if (req.params.identityId == organization.identityId) {
-            await Organization.update(
-                { name_org, image, start_year, end_year, role, jobdesc },
-                {
-                    where: {
-                        [Op.and]: [{ id: organization.id }, { identityId: req.params.identityId }],
-                    },
-                }
-            );
-        } else {
-            return res.status(403).json({ msg: "Akses terlarang" });
-        }
+            if (req.params.identityId == organization.identityId) {
+                // Hapus file lampiran lama dari direktori lokal
+                const oldImagePath = path.join("src/image/organization", organization.image);
+                fs.unlink(oldImagePath, (err) => {
+                    if (err) {
+                        console.error("Gagal menghapus file lampiran lama:", err);
+                        return res.status(500).json({ msg: "Gagal menghapus file lampiran lama" });
+                    }
 
-        res.status(200).json({ msg: "Organization updated successfully" });
+                    // Update data portofolio dengan file lampiran yang baru
+                    Organization.update(
+                        { name_org, image: file_name, start_year, end_year, role, jobdesc },
+                        {
+                            where: {
+                                [Op.and]: [{ id: organization.id }, { identityId: req.params.identityId }],
+                            },
+                        }
+                    );
+                });
+            } else {
+                return res.status(403).json({ msg: "Akses terlarang" });
+            }
+
+            res.status(200).json({ msg: "Organization updated successfully" });
+        });
     } catch (error) {
         res.status(500).json({ msg: error.message });
     }
@@ -137,10 +170,19 @@ export const deleteOrganization = async (req, res) => {
         if (!organization) return res.status(404).json({ msg: "Data tidak ditemukan" });
 
         if (req.params.identityId == organization.identityId) {
-            await Organization.destroy({
-                where: {
-                    [Op.and]: [{ id: organization.id }, { identityId: req.params.identityId }],
-                },
+            // Hapus file lampiran dari direktori lokal
+            const imagePath = path.join("src/image/organization", organization.image);
+            fs.unlink(imagePath, (err) => {
+                if (err) {
+                    console.error("Gagal menghapus file lampiran:", err);
+                    return res.status(500).json({ msg: "Gagal menghapus file lampiran" });
+                }
+
+                Organization.destroy({
+                    where: {
+                        [Op.and]: [{ id: organization.id }, { identityId: req.params.identityId }],
+                    },
+                });
             });
         } else {
             return res.status(403).json({ msg: "Akses terlarang" });

@@ -174,3 +174,8 @@ Content-Type: application/json
 ### 
 // Delete Organization Data
 DELETE http://localhost:5000/identities/1/organizations/2
+
+
+###
+#delete education
+DELETE http://localhost:5000/identities/1/educations/6
