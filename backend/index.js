@@ -20,27 +20,31 @@ const app = express();
 const sessionStore = SequelizeStore(session.Store);
 
 const store = new sessionStore({
-    db : db
+  db: db,
 });
 
 // (async()=> {
 //     await db.sync();
 // });
 
-app.use(session({
+app.use(
+  session({
     secret: process.env.SESS_SECRET,
     resave: false,
     saveUnitialized: true,
     store: store,
     cookie: {
-        secure: 'auto'
-    }
-}));
+      secure: "auto",
+    },
+  })
+);
 
-app.use(cors({
+app.use(
+  cors({
     credentials: true,
-    origin: 'http://localhost:3000'
-}));
+    origin: "http://localhost:3000",
+  })
+);
 
 app.use(express.json());
 app.use(UserRoute);
@@ -56,6 +60,6 @@ app.use(PortfolioImageRoute);
 
 // app.listen(5000, () => console.log("server up and running..."));
 
-app.listen(process.env.APP_PORT, ()=> {
-    console.log('server up and running...');
+app.listen(process.env.APP_PORT, () => {
+  console.log("server up and running...");
 });

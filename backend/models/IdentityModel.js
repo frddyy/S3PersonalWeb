@@ -7,59 +7,61 @@ import Portfolio from "./PortfolioModel.js";
 
 const { DataTypes } = Sequelize;
 
-const Identity = db.define("identities",{
+const Identity = db.define(
+  "identities",
+  {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
         notEmpty: true,
-        len: [3, 100]
-      }
+        len: [3, 100],
+      },
     },
     image: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notEmpty: true
-      }
+        notEmpty: true,
+      },
     },
     place_of_birth: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notEmpty: true
-      }
+        notEmpty: true,
+      },
     },
     date_of_birth: {
-        type: DataTypes.DATEONLY,
-        allowNull: false
+      type: DataTypes.DATEONLY,
+      allowNull: false,
     },
     address: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notEmpty: true
-      }
+        notEmpty: true,
+      },
     },
     phone_number: {
       type: DataTypes.STRING,
       allowNull: true,
       validate: {
         notEmpty: true,
-        len: [10, 15]
-      }
+        len: [10, 15],
       },
+    },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
         notEmpty: true,
-        isEmail: true
-      }
+        isEmail: true,
+      },
     },
     description: {
-        type: DataTypes.TEXT,
-        allowNull: false 
+      type: DataTypes.TEXT,
+      allowNull: false,
     },
     instagram: {
       type: DataTypes.STRING,
@@ -76,8 +78,9 @@ const Identity = db.define("identities",{
     github: {
       type: DataTypes.STRING,
       allowNull: true,
-    }
-  },{
+    },
+  },
+  {
     freezeTableName: true,
   }
 );
@@ -94,15 +97,13 @@ Skill.belongsTo(Identity);
 Portfolio.belongsTo(Identity);
 Skill.belongsTo(Identity);
 
-
 export default Identity;
 
 // (async () => {
-//     try {
-//       await db.sync();
-//       console.log("Database synchronized");
-//     } catch (error) {
-//       console.error("Error synchronizing database:", error);
-//     }
-//   })();
-
+//   try {
+//     await db.sync();
+//     console.log("Database synchronized");
+//   } catch (error) {
+//     console.error("Error synchronizing database:", error);
+//   }
+// })();

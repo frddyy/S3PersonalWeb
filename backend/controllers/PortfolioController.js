@@ -1,138 +1,218 @@
 import Portfolio from "../models/PortfolioModel.js";
 import Identity from "../models/IdentityModel.js";
-import path from 'path';  
-import {unlink} from 'fs';
-import multer from 'multer';
+import path from "path";
+import multer from "multer";
+import { Op } from "sequelize";
+import fs from "fs";
 
 // Configure multer to specify where to store uploaded files and their names.
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
-    callback(null, 'src/image/portfolio'); // Define the destination folder
+    callback(null, "src/image/portfolio"); // Define the destination folder
   },
-  filename: (req, file, callback) => {
-    // Define the filename for the uploaded file
-    const extensionName = path.extname(file.originalname);
-    const filename = "portfolio_"+ req.body.title + extensionName;
-    callback(null, filename);
+  filename: async (req, file, callback) => {
+    try {
+      // Get the associated Identity's name
+      const identity = await Identity.findOne({
+        where: {
+          id: req.params.identityId,
+        },
+      });
+
+      if (!identity) {
+        throw new Error("Identity not found");
+      }
+
+      const extensionName = path.extname(file.originalname);
+      const filename = `${identity.name}_portfolio_${req.body.title}${extensionName}`;
+      callback(null, filename);
+    } catch (error) {
+      callback(error, null);
+    }
   },
 });
 
 const upload = multer({ storage: storage });
 
-
-export const getPortfolio = async(req, res) => {
-    try {
-        const response = await Portfolio.findAll()
-        res.status(200).json(response)
-    } catch (error) {
-        console.log(error.message)
-    }
-}
+export const getPortfolio = async (req, res) => {
+  try {
+    let response = await Portfolio.findAll({
+      where: {
+        identityId: req.params.identityId,
+      },
+      include: [
+        {
+          model: Identity,
+          attributes: ["name"],
+        },
+      ],
+    });
+    res.status(200).json(response);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 export const getPortfolioById = async (req, res) => {
   try {
-    const identityId = req.params.id; // Assuming you're getting the user ID from the request parameters
-
-    // Find the user by their ID
-    const identity = await Identity.findByPk(userId);
-
-    if (!identity) {
-      return res.status(404).json({ message: 'Portfolio not found' });
-    }
-
-    // Find education records associated with the user using the foreign key (user_id)
-    const portfolioRecords = await Portfolio.findAll({
+    const portfolio = await Portfolio.findOne({
       where: {
-        identityId: identityId,
+        id: req.params.portfolioId,
       },
     });
 
-    res.status(200).json(portfolioRecords);
+    if (!portfolio)
+      return res.status(404).json({ msg: "Data tidak ditemukan" });
+
+    let response;
+    response = await Portfolio.findOne({
+      where: {
+        [Op.and]: [{ id: portfolio.id }, { identityId: req.params.identityId }],
+      },
+      include: [
+        {
+          model: Identity,
+          attributes: ["name"],
+        },
+      ],
+    });
+    res.status(200).json(response);
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ msg: error.message });
   }
 };
 
 export const createPortfolio = async (req, res) => {
   try {
-    if (!req.body) {
-      return res.status(400).send({
-        message: "Data tidak boleh kosong!"
-      });
-    }
-
     // Use the multer upload middleware to handle file uploads
-    upload.single('attachment')(req, res, async (err) => {
+    upload.single("attachment")(req, res, async (err) => {
       if (err) {
         return res.status(500).send({
-          message: "File cannot upload"
+          message: "File cannot upload",
         });
       }
 
       // File upload was successful, now you can access req.file
       const file_name = req.file.filename;
-
-      // Rest of your code to upload to the database and send the response
-      var data = {
-        title: req.body.title,
-        description: req.body.description, // Correct the typo here
+      const { title, description } = req.body;
+      await Portfolio.create({
+        title: title,
+        description: description,
         attachment: file_name,
-        identityId: req.body.identityId
-      };
-
-      const createdPortfolio = await Portfolio.create(data);
-      res.status(201).json(createdPortfolio);
+        identityId: req.params.identityId,
+      });
+      res.status(201).json({ msg: "Portfolio Created Successfully" });
     });
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ msg: error.message });
   }
 };
 
 export const updatePortfolio = async (req, res) => {
   try {
-    const portfolioId = req.params.id;
-    const { title, description } = req.body;
+    const portfolio = await Portfolio.findOne({
+      where: {
+        id: req.params.portfolioId,
+      },
+    });
 
-    // Check if the portfolio with the given ID exists
-    const portfolio = await Portfolio.findByPk(portfolioId);
+    if (!portfolio)
+      return res.status(404).json({ msg: "Data tidak ditemukan" });
 
-    if (!portfolio) {
-      return res.status(404).json({ message: 'Portfolio not found' });
-    }
+    upload.single("attachment")(req, res, async (err) => {
+      if (err) {
+        return res.status(500).send({
+          message: "File cannot upload",
+        });
+      }
+      const file_name = req.file.filename;
+      const { title, description } = req.body;
 
-    // Update the portfolio's title and description
-    portfolio.title = title;
-    portfolio.description = description;
+      if (req.params.identityId == portfolio.identityId) {
+        // Hapus file lampiran lama dari direktori lokal
+        const oldAttachmentPath = path.join(
+          "src/image/portfolio",
+          portfolio.attachment
+        );
+        fs.unlink(oldAttachmentPath, (err) => {
+          if (err) {
+            console.error("Gagal menghapus file lampiran lama:", err);
+            return res
+              .status(500)
+              .json({ msg: "Gagal menghapus file lampiran lama" });
+          }
 
-    // Save the updated portfolio to the database
-    await portfolio.save();
-
-    res.status(200).json({ message: 'Portfolio updated successfully', portfolio });
+          // Update data portofolio dengan file lampiran yang baru
+          Portfolio.update(
+            { title, description, attachment: file_name },
+            {
+              where: {
+                [Op.and]: [
+                  { id: portfolio.id },
+                  { identityId: req.params.identityId },
+                ],
+              },
+            }
+          )
+            .then(() => {
+              res.status(200).json({ msg: "Portfolio updated successfully" });
+            })
+            .catch((error) => {
+              res.status(500).json({ msg: error.message });
+            });
+        });
+      } else {
+        return res.status(403).json({ msg: "Akses terlarang" });
+      }
+    });
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ msg: error.message });
   }
 };
 
 export const deletePortfolio = async (req, res) => {
   try {
-    const portfolioId = req.params.id;
+    const portfolio = await Portfolio.findOne({
+      where: {
+        id: req.params.portfolioId,
+      },
+    });
 
-    // Find the portfolio by its ID
-    const portfolio = await Portfolio.findByPk(portfolioId);
+    if (!portfolio)
+      return res.status(404).json({ msg: "Data tidak ditemukan" });
 
-    if (!portfolio) {
-      return res.status(404).json({ message: 'Portfolio not found' });
+    if (req.params.identityId == portfolio.identityId) {
+      // Hapus file lampiran dari direktori lokal
+      const attachmentPath = path.join(
+        "src/image/portfolio",
+        portfolio.attachment
+      );
+      fs.unlink(attachmentPath, (err) => {
+        if (err) {
+          console.error("Gagal menghapus file lampiran:", err);
+          return res.status(500).json({ msg: "Gagal menghapus file lampiran" });
+        }
+
+        // Setelah file terhapus, hapus juga data portofolio dari database
+        Portfolio.destroy({
+          where: {
+            [Op.and]: [
+              { id: portfolio.id },
+              { identityId: req.params.identityId },
+            ],
+          },
+        })
+          .then(() => {
+            res.status(200).json({ msg: "Portfolio deleted successfully" });
+          })
+          .catch((error) => {
+            res.status(500).json({ msg: error.message });
+          });
+      });
+    } else {
+      return res.status(403).json({ msg: "Akses terlarang" });
     }
-
-    // Delete the portfolio from the database
-    await portfolio.destroy();
-
-    res.status(200).json({ message: 'Portfolio deleted successfully' });
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ msg: error.message });
   }
 };

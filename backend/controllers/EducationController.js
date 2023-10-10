@@ -1,51 +1,82 @@
 import Education from "../models/EducationModel.js";
+import path from "path";
+import { Op } from "sequelize";
+import multer from "multer";
+import Identity from "../models/IdentityModel.js";
+import fs from "fs";
+
+// Configure multer to specify where to store uploaded files and their names.
+const storage = multer.diskStorage({
+  destination: (req, file, callback) => {
+    callback(null, "src/image/education"); // Define the destination folder
+  },
+  filename: async (req, file, callback) => {
+    try {
+      const identity = await Identity.findOne({
+        where: {
+          id: req.params.identityId,
+        },
+      });
+      if (!identity) {
+        throw new Error("identity not found");
+      }
+      // Define the filename for the uploaded file
+      const extensionName = path.extname(file.originalname);
+      const filename = `${identity.name}_education_${req.body.name_sch}${extensionName}`;
+      callback(null, filename);
+    } catch (error) {
+      callback(error, null);
+    }
+  },
+});
+
+const upload = multer({ storage: storage });
 
 // Get all education records
 export const getEducation = async (req, res) => {
   try {
-    const response = await Education.findAll();
+    let response = await Education.findAll({
+      where: {
+        identityId: req.params.identityId,
+      },
+      include: [
+        {
+          model: Identity,
+          attributes: ["name"],
+        },
+      ],
+    });
     res.status(200).json(response);
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Get education records by identity_id
 export const getEducationById = async (req, res) => {
   try {
-    const identityId = req.params.identityId; // Assuming the user_id is provided as a URL parameter
-    const educationData = await Education.findAll({
+    const education = await Education.findOne({
       where: {
-        identityId: identityId,
+        id: req.params.educationId,
       },
     });
 
-    res.status(200).json(educationData);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+    if (!education)
+      return res.status(404).json({ msg: "data tidak ditemukan" });
 
-// Get education by education_id and user_id
-export const getEducationByEducationIdAndIdentityId = async (req, res) => {
-  try {
-    const identityId = req.params.identityId;
-    const educationId = req.params.educationId;
-
-    const educationData = await Education.findOne({
+    let response;
+    response = await Education.findOne({
       where: {
-        id: educationId,
-        identityId: identityId,
+        [Op.and]: [{ id: education.id }, { identityId: req.params.identityId }],
       },
+      include: [
+        {
+          model: Identity,
+          attributes: ["name"],
+        },
+      ],
     });
-
-    if (!educationData) {
-      return res.status(404).json({ error: "Education entry not found" });
-    }
-
-    res.status(200).json(educationData);
+    res.status(200).json(response);
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: "Internal server error" });
@@ -55,9 +86,26 @@ export const getEducationByEducationIdAndIdentityId = async (req, res) => {
 // Create a new education record
 export const createEducation = async (req, res) => {
   try {
-    const createdEducation = await Education.create(req.body);
-    res.status(200).json({ msg: "Education created" });
-    res.status(201).json(createdEducation);
+    upload.single("image")(req, res, async (err) => {
+      if (err) {
+        return res.status(500).send({
+          message: "file cannot upload",
+        });
+      }
+
+      const file_name = req.file.filename;
+      const { name_sch, start_year, end_year, major, information } = req.body;
+      await Education.create({
+        name_sch: name_sch,
+        image: file_name,
+        start_year: start_year,
+        end_year: end_year,
+        major: major,
+        information: information,
+        identityId: req.params.identityId,
+      });
+      res.status(201).json({ msg: "Education created" });
+    });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: "Internal server error" });
@@ -67,44 +115,96 @@ export const createEducation = async (req, res) => {
 // Update an education record by education_id and identity_id
 export const updateEducation = async (req, res) => {
   try {
-    const identityId = req.params.identityId; // Assuming the user_id is provided as a URL parameter
-    const educationId = req.params.educationId; // Assuming the education_id is provided as a URL parameter
-
-    const [updatedRowCount] = await Education.update(req.body, {
+    const education = await Education.findOne({
       where: {
-        id: educationId,
-        identityId: identityId,
+        id: req.params.educationId,
       },
     });
 
-    if (updatedRowCount === 0) {
-      // No matching education entry found
-      return res.status(404).json({ error: "Education entry not found" });
-    }
+    if (!education)
+      return res.status(404).json({ msg: "Data tidak ditemukan" });
 
-    res.status(200).json({ msg: "Education entry updated" });
+    upload.single("image")(req, res, async (err) => {
+      if (err) {
+        return res.status(500).send({
+          message: "File cannot upload",
+        });
+      }
+      const file_name = req.file.filename;
+      const { name_sch, start_year, end_year, major, information } = req.body;
+
+      if (req.params.identityId == education.identityId) {
+        // Hapus file lampiran lama dari direktori lokal
+        const oldImagePath = path.join("src/image/education", education.image);
+        fs.unlink(oldImagePath, (err) => {
+          if (err) {
+            console.error("Gagal menghapus file lampiran lama:", err);
+            return res
+              .status(500)
+              .json({ msg: "Gagal menghapus file lampiran lama" });
+          }
+
+          // Update data portofolio dengan file lampiran yang baru
+          Education.update(
+            {
+              name_sch,
+              image: file_name,
+              start_year,
+              end_year,
+              major,
+              information,
+            },
+            {
+              where: {
+                [Op.and]: [
+                  { id: education.id },
+                  { identityId: req.params.identityId },
+                ],
+              },
+            }
+          );
+        });
+      } else {
+        return res.status(403).json({ msg: "Akses terlarang" });
+      }
+
+      res.status(200).json({ msg: "Organization updated successfully" });
+    });
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ msg: error.message });
   }
 };
-
 // Delete an education record by education_id and identity_id
 export const deleteEducation = async (req, res) => {
   try {
-    const identityId = req.params.identityId; // Assuming the user_id is provided as a URL parameter
-    const educationId = req.params.educationId; // Assuming the education_id is provided as a URL parameter
-
-    const deletedRowCount = await Education.destroy({
+    const education = await Education.findOne({
       where: {
-        id: educationId,
-        identityId: identityId,
+        id: req.params.educationId,
       },
     });
 
-    if (deletedRowCount === 0) {
-      // No matching education entry found
-      return res.status(404).json({ error: "Education entry not found" });
+    if (!education)
+      return res.status(404).json({ msg: "Data tidak ditemukan" });
+
+    if (req.params.identityId == education.identityId) {
+      const imagePath = path.join("src/image/education", education.image);
+      fs.unlink(imagePath, (err) => {
+        if (err) {
+          console.error("Gagal menghapus file lampiran:", err);
+          return res.status(500).json({ msg: "Gagal menghapus file lampiran" });
+        }
+
+        Education.destroy({
+          where: {
+            [Op.and]: [
+              { id: education.id },
+              { identityId: req.params.identityId },
+            ],
+          },
+        });
+      });
+    } else {
+      return res.status(403).json({ msg: "Akses terlarang" });
     }
 
     res.status(200).json({ msg: "Education entry deleted" });

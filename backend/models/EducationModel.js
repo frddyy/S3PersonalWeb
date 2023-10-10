@@ -29,7 +29,7 @@ const Education = db.define(
     information: {
       type: DataTypes.TEXT,
       allowNull: true,
-    }
+    },
   },
   {
     freezeTableName: true,
