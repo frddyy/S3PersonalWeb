@@ -4,10 +4,10 @@ POST http://localhost:5000/users
 Content-Type: application/json
 
 {
-    "username": "syifakhairina",
+    "username": "rivaldo",
     "password": "12345678",
     "confirmPassword": "12345678",
-    "role": "admin"
+    "role": "user"
 }
 
 ###
