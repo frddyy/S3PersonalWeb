@@ -7,7 +7,7 @@ Content-Type: application/json
     "username": "rivaldo",
     "password": "12345678",
     "confirmPassword": "12345678",
-    "role": "user"
+    "role": "admin"
 }
 
 ###
@@ -16,11 +16,11 @@ GET http://localhost:5000/users
 
 ###
 // Get Single User
-GET http://localhost:5000/users/e198f559-9073-4560-ae0c-78d44389495b
+GET http://localhost:5000/users/d713bb5c-a148-41ec-a760-e1a9c56d3ef5
 
 ###
 // Update a user
-PATCH http://localhost:5000/users/e198f559-9073-4560-ae0c-78d44389495b
+PATCH http://localhost:5000/users/d713bb5c-a148-41ec-a760-e1a9c56d3ef5
 Content-Type: application/json
 
 {
@@ -40,7 +40,7 @@ POST http://localhost:5000/login
 Content-Type: application/json
 
 {
-    "username" : "ferdyfauzan",
+    "username" : "rivaldo",
     "password" : "12345678"
 }
 
@@ -78,13 +78,13 @@ POST http://localhost:5000/identities
 Content-Type: application/json
 
 {
-    "name": "Mochamad Ferdy Fauzan",
-    "image": "https://example.com/ferdy.jpg",
-    "place_of_birth": "Garut",
-    "date_of_birth": "2003-01-13",
-    "address": "Komplek Serra Valley D6, Bandung",
-    "phone_number": "085156600480",
-    "email": "m.ferdyfauzan@example.com",
+    "name": "Rivaldo Fauzan Robani",
+    "image": "https://https://avatars.githubusercontent.com/u/79311958?v=4",
+    "place_of_birth": "Bandung",
+    "date_of_birth": "2003-08-29",
+    "address": "Jl. H. Yasin X No. 448A, Kota Bandung",
+    "phone_number": "08157098421",
+    "email": "rivaldofr03@gmail.com",
     "description": "A passionate web developer with a love for coding.",
     "userId": 1
 }
@@ -119,3 +119,96 @@ Content-Type: application/json
 ### 
 // Delete Identity Data
 DELETE http://localhost:5000/identities/3
+
+// =================== CRUD ORGANIZATION ====================
+
+###
+// Get All Organizations
+GET http://localhost:5000/identities/1/organizations
+
+###
+// Create an organization
+POST http://localhost:5000/identities/1/organizations
+Content-Type: application/json
+
+{
+    "name_org": "HIMAKOM", 
+    "image": "http://www.example.com/brigez.jpg", 
+    "start_year": 2021,
+    "end_year": 2023,
+    "role": "Wakadep PSDA",
+    "jobdesc": "Bantuin Kadep"
+}
+
+###
+// Get Single Organization
+GET http://localhost:5000/identities/1/organizations/1
+
+### 
+// Update Organization Data
+PATCH http://localhost:5000/identities/1/organizations/1
+Content-Type: application/json
+
+{
+    "start_year": 2019,
+    "end_year": 2021,
+    "role": "Wakadep MSDH",
+    "jobdesc": "Bantuin Kadep Baru"
+}
+
+### 
+// Delete Organization Data
+DELETE http://localhost:5000/identities/1/organizations/1
+
+// =================== CRUD Portfolio ====================
+###
+// Get All Portfolio
+GET http://localhost:5000/identities/1/portfolios
+
+###
+// Get Single Portfolio
+GET http://localhost:5000/identities/1/portfolios/1
+
+### 
+// Delete Portfolio Data
+DELETE http://localhost:5000/identities/1/portfolios/2
+
+
+// =================== CRUD Portfolio Image ====================
+###
+// Get All Portfolio Image
+GET http://localhost:5000/portfolios/1/portfolio_images
+
+###
+// Get Single Portfolio Image
+GET http://localhost:5000/portfolios/1/portfolio_images/1
+
+### 
+// Delete Portfolio Image Data
+DELETE http://localhost:5000/portfolios/1/portfolio_images/7
+
+// =================== CRUD Education ====================
+###
+// Get All Education
+GET http://localhost:5000/identities/1/educations
+
+###
+// Get Single Education
+GET http://localhost:5000/identities/1/educations/1
+
+### 
+// Delete Education Data
+DELETE http://localhost:5000/identities/1/educations/2
+
+// =================== CRUD Skill ====================
+###
+// Get All Skill
+GET http://localhost:5000/identities/1/skills
+
+###
+// Get Single Skill
+GET http://localhost:5000/identities/1/skills/1
+
+### 
+// Delete Education Skill
+DELETE http://localhost:5000/identities/1/skills/2
