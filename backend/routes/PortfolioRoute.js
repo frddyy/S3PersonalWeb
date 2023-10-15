@@ -10,13 +10,13 @@ import {
 const router = express.Router();
 
 // Route to get all education records
-router.get('identities/:identityId/portfolios', getPortfolio);
+router.get('/identities/:identityId/portfolios', getPortfolio);
 
 // Route to get Skill records by user ID
 router.get('/identities/:identityId/portfolios/:portfolioId', getPortfolioById);
 
 // Create a portfolio record
-router.post('identities/:identityId/portfolios', createPortfolio);
+router.post('/identities/:identityId/portfolios', createPortfolio);
 
 // Update a portfolio record
 router.patch('/identities/:identityId/portfolios/:portfolioId', updatePortfolio);

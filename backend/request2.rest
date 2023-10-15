@@ -119,3 +119,27 @@ Content-Type: application/json
 ### 
 // Delete Identity Data
 DELETE http://localhost:5000/identities/3
+
+// CRUD ORGANIZATION
+###
+// Get All Identities
+GET http://localhost:5000/identities/1/organizations
+
+###
+// Get Single Identities
+GET http://localhost:5000/identities/1/organizations/1
+
+### 
+// Create Identity Data
+POST http://localhost:5000/identities/1/organizations
+Content-Type: application/json
+
+{
+    "name_org": "HIMAKOM",
+    "image": "himakom.jpg",
+    "start_year": "2021",
+    "end_year": "2023",
+    "role": "KADIV",
+    "jobdesc": "nganggur",
+    "identityId": 1
+}
