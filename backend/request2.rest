@@ -4,7 +4,7 @@ POST http://localhost:5000/users
 Content-Type: application/json
 
 {
-    "username": "rivaldo",
+    "username": "syifakhrn",
     "password": "12345678",
     "confirmPassword": "12345678",
     "role": "admin"
@@ -40,7 +40,7 @@ POST http://localhost:5000/login
 Content-Type: application/json
 
 {
-    "username" : "rivaldo",
+    "username" : "syifakhrn",
     "password" : "12345678"
 }
 
@@ -78,13 +78,13 @@ POST http://localhost:5000/identities
 Content-Type: application/json
 
 {
-    "name": "Rivaldo Fauzan Robani",
-    "image": "https://https://avatars.githubusercontent.com/u/79311958?v=4",
+    "name": "Syifa Khairina",
+    "image": "https://imagesyifa=v44",
     "place_of_birth": "Bandung",
-    "date_of_birth": "2003-08-29",
-    "address": "Jl. H. Yasin X No. 448A, Kota Bandung",
-    "phone_number": "08157098421",
-    "email": "rivaldofr03@gmail.com",
+    "date_of_birth": "2003-01-01",
+    "address": "Supratman, Bandung",
+    "phone_number": "087878876632",
+    "email": "syifa.khairina@gmail.com",
     "description": "A passionate web developer with a love for coding.",
     "userId": 1
 }

@@ -61,12 +61,16 @@ export const getSkillById = async (req, res) => {
       },
     });
 
-    if (!skill) return res.status(404).json({ msg: "Data tidak ditemukan" });
+    if (!skill)
+      return res.status(404).json({ msg: "Data tidak ditemukan" });
 
     let response;
     response = await Skill.findOne({
       where: {
-        [Op.and]: [{ id: skill.id }, { identityId: req.params.identityId }],
+        [Op.and]: [
+          { id: skill.id },
+          { identityId: req.params.identityId },
+        ],
       },
       include: [
         {
@@ -115,7 +119,8 @@ export const updateSkill = async (req, res) => {
       },
     });
 
-    if (!skill) return res.status(404).json({ msg: "Data tidak ditemukan" });
+    if (!skill)
+      return res.status(404).json({ msg: "Data tidak ditemukan" });
 
     upload.single("thumbnail")(req, res, async (err) => {
       if (err) {
@@ -124,11 +129,14 @@ export const updateSkill = async (req, res) => {
         });
       }
       const file_name = req.file.filename;
-      const { title, level } = req.body;
+      const {title, level } = req.body;
 
       if (req.params.identityId == skill.identityId) {
         // Hapus file lampiran lama dari direktori lokal
-        const oldImagePath = path.join("src/image/skill", skill.thumbnail);
+        const oldImagePath = path.join(
+          "src/image/skill",
+          skill.thumbnail
+        );
         fs.unlink(oldImagePath, (err) => {
           if (err) {
             console.error("Gagal menghapus file lampiran lama:", err);
@@ -169,7 +177,8 @@ export const deleteSkill = async (req, res) => {
       },
     });
 
-    if (!skill) return res.status(404).json({ msg: "Data tidak ditemukan" });
+    if (!skill)
+      return res.status(404).json({ msg: "Data tidak ditemukan" });
 
     if (req.params.identityId == skill.identityId) {
       // Hapus file lampiran dari direktori lokal
@@ -182,7 +191,10 @@ export const deleteSkill = async (req, res) => {
 
         Skill.destroy({
           where: {
-            [Op.and]: [{ id: skill.id }, { identityId: req.params.identityId }],
+            [Op.and]: [
+              { id: skill.id },
+              { identityId: req.params.identityId },
+            ],
           },
         });
       });
