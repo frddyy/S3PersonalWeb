@@ -4,190 +4,220 @@ import {
   Button,
   Typography,
   TextField,
+  MenuItem,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { Formik } from "formik";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/header";
+import { tokens } from "../../theme";
+import { getMe } from "../../features/AuthSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const EditPortfolioForm = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const navigate = useNavigate();
-  const [msg, setMsg] = useState("");
-  const [identityId, setIdentityId] = useState("");
-  const [portfolioId, setPortfolioId] = useState("");
 
-  const [initialFormValues, setInitialFormValues] = useState({
+  const { portfolioId } = useParams();
+
+  const [portfolioData, setPortfolioData] = useState({
     title: "",
     description: "",
-    attachment: "",
+    attachment: null,
   });
 
-  useEffect(() => {
-    getIdentities();
-  }, []);
+  const [msg, setMsg] = useState("");
+
+  const [userId, setUserId] = useState(""); // Initialize as an empty string
+  const [userRole, setUserRole] = useState(""); // Initialize as an empty string
+
+  const [identities, setIdentities] = useState([]);
+  const [identityId, setIdentityId] = useState("");
+
+  let isAdmin = false;
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    getPortfolioById();
-  }, []);
+    // Call getMe to set the userId
+    dispatch(getMe())
+      .then((result) => {
+        if (getMe.fulfilled.match(result)) {
+          const user = result.payload;
+          console.log("User:", user);
+          console.log("UserID:", user.id);
+          setUserId(user.id);
+          setUserRole(user.role);
+        }
+      })
+      .catch((error) => {
+        console.log("Error fetching user data:", error);
+      });
+  }, [dispatch]);
 
   useEffect(() => {
-    if (identityId) {
-      getPortfolios();
+    if (userId && identities.length > 0) {
+      getPortfolioById();
     }
-  }, [identityId]);
+  }, [userId, identities]);
 
-  console.log("Identity ID:", identityId);
-  console.log("Portfolio ID:", portfolioId);
+  const getPortfolioById = async () => {
+    // Match the userId from the user object with an identity
+    const matchingIdentity = identities.find(
+      (identity) => identity.userId === userId
+    );
+
+    console.log("match? ", matchingIdentity);
+
+    if (matchingIdentity) {
+      const identityIdForPortfolio = matchingIdentity.id;
+      console.log("identityId: ", identityIdForPortfolio);
+
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/identities/${identityIdForPortfolio}/portfolios/${portfolioId}`
+        );
+        const portfolioData = response.data;
+        setPortfolioData(portfolioData || {});
+      } catch (error) {
+        console.error("Error fetching portfolio data:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (userId) {
+      getIdentities();
+    }
+  }, [userId]);
+
+  if (userRole === "admin") {
+    isAdmin = true;
+  }
 
   const getIdentities = async () => {
     try {
       const response = await axios.get("http://localhost:5000/identities");
-      if (response.data.length > 0) {
+
+      if (!isAdmin && response.data.length > 0) {
         const userIdentity = response.data[0];
+        console.log("INI IDENTITY ID: ", userIdentity.id);
         setIdentityId(userIdentity.id);
       }
+
+      setIdentities(response.data);
     } catch (error) {
       console.log(error.message);
     }
   };
 
-  const getPortfolios = async () => {
-    if (!identityId) return; // Ensure we have a valid identityId
+  const updatePortfolio = async (e) => {
+    e.preventDefault();
 
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/identities/${identityId}/portfolios`
-      );
-      if (response.data.length > 0) {
-        const identityPortfolio = response.data[0];
-        setPortfolioId(identityPortfolio.id);
-      }
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
+    // Match the userId from the user object with an identity
+    const matchingIdentity = identities.find(
+      (identity) => identity.userId === userId
+    );
 
-  const getPortfolioById = async () => {
-    if (!identityId || !portfolioId) return;
+    if (matchingIdentity) {
+      const identityIdForPortfolio = matchingIdentity.id;
 
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/identities/${identityId}/portfolios/${portfolioId}`
-      );
-      const { title, description, attachment } = response.data;
-      // Update initial form values
-      setInitialFormValues({ title, description, attachment });
-    } catch (error) {
-      if (error.response) {
-        setMsg(error.response.data.msg);
-      }
-    }
-  };
-
-  const updatePortfolio = async (values) => {
-    const formData = new FormData();
-    formData.append("title", values.title);
-    formData.append("description", values.description);
-    if (values.attachment) {
-      formData.append("attachment", values.attachment);
-    }
-
-    try {
-      await axios.patch(
-        `http://localhost:5000/identities/${identityId}/portfolios/${portfolioId}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+      try {
+        // Create a FormData object to handle file uploads
+        const formData = new FormData();
+        for (const key in portfolioData) {
+          if (key === "image" && portfolioData[key] instanceof File) {
+            // Append the file to the FormData
+            formData.append(key, portfolioData[key]);
+          } else if (portfolioData[key] !== "") {
+            formData.append(key, portfolioData[key]);
+          }
         }
-      );
-      navigate("/portfolios");
-    } catch (error) {
-      if (error.response) {
-        setMsg(error.response.data.msg);
+
+        await axios.patch(
+          `http://localhost:5000/identities/${identityIdForPortfolio}/portfolios/${portfolioId}`,
+          formData
+        );
+        setMsg("Perubahan Portfolio Pengguna Berhasil");
+        navigate("/portfolios");
+      } catch (error) {
+        if (error.response) {
+          setMsg(error.response.data.msg);
+        } else {
+          setMsg("Terjadi kesalahan saat memperbarui portfolio pengguna.");
+        }
       }
+    }
+  };
+
+  const handleFieldChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === "image") {
+      // Update the image field with the File object
+      setPortfolioData({ ...portfolioData, [name]: files[0] || null });
+    } else {
+      setPortfolioData({ ...portfolioData, [name]: value });
     }
   };
 
   return (
     <Box m="20px">
-      <Header title="UPDATE PORTFOLIO" subtitle="Update Portfolio" />
+      <Header title="EDIT PORTFOLIO" subtitle="Edit Portfolio" />
       <Typography variant="h6" color="error">
         {msg}
       </Typography>
-      <Formik initialValues={initialFormValues} onSubmit={updatePortfolio}>
-        {({
-          values,
-          errors,
-          touched,
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          setFieldValue,
-        }) => (
-          <form onSubmit={handleSubmit}>
-            <Box
-              display="grid"
-              gap="30px"
-              gridTemplateColumns={
-                isNonMobile ? "repeat(4, minmax(0, 1fr))" : "1fr"
-              }
-            >
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                id="title"
-                name="title"
-                label="Title"
-                value={values.title}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={touched.title && Boolean(errors.title)}
-                helperText={touched.title && errors.title}
-                sx={{ gridColumn: "span 4" }}
-              />
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                id="description"
-                name="description"
-                label="Description"
-                value={values.description}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={touched.description && Boolean(errors.description)}
-                helperText={touched.description && errors.description}
-                sx={{ gridColumn: "span 4" }}
-              />
-              <TextField
-                fullWidth
-                variant="filled"
-                type="file"
-                id="attachment"
-                name="attachment"
-                label=""
-                onChange={(event) => {
-                  setFieldValue("attachment", event.currentTarget.files[0]);
-                }}
-                onBlur={handleBlur}
-                error={touched.attachment && Boolean(errors.attachment)}
-                helperText={touched.attachment && errors.attachment}
-                sx={{ gridColumn: "span 4" }}
-              />
-            </Box>
-            <Box display="flex" justifyContent="end" mt="20px">
-              <Button type="submit" color="secondary" variant="contained">
-                Update Portfolio
-              </Button>
-            </Box>
-          </form>
-        )}
-      </Formik>
+      <form onSubmit={(values) => updatePortfolio(values)}>
+        <Box
+          display="grid"
+          gap="30px"
+          gridTemplateColumns={
+            isNonMobile ? "repeat(4, minmax(0, 1fr))" : "1fr"
+          }
+        >
+          <TextField
+            fullWidth
+            variant="filled"
+            type="text"
+            id="title"
+            name="title"
+            label="Title"
+            value={portfolioData.title || ""}
+            onChange={handleFieldChange}
+            sx={{ gridColumn: "span 4" }}
+          />
+          <TextField
+            fullWidth
+            variant="filled"
+            type="text"
+            id="description"
+            name="description"
+            label="Description"
+            value={portfolioData.description || ""}
+            onChange={handleFieldChange}
+            sx={{ gridColumn: "span 4" }}
+          />
+          {/* Field untuk Upload Image */}
+          <Box sx={{ gridColumn: "span 4" }}>
+            <Typography>Attachment</Typography>
+            <TextField
+              fullWidth
+              type="file"
+              id="attachment"
+              name="attachment"
+              onChange={handleFieldChange}
+              disableUnderline="true"
+              sx={{ gridColumn: "span 4" }}
+            />
+          </Box>
+        </Box>
+        <Box display="flex" justifyContent="end" mt="20px">
+          <Button type="submit" color="secondary" variant="contained">
+            Edit Portfolio
+          </Button>
+        </Box>
+      </form>
     </Box>
   );
 };

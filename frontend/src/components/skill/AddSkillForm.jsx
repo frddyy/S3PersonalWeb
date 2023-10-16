@@ -67,7 +67,7 @@ const AddSkillForm = () => {
 
       if (!isAdmin && response.data.length > 0) {
         const userIdentity = response.data[0];
-        console.log("INI IDENTITY ID: ",userIdentity.id);
+        console.log("INI IDENTITY ID: ", userIdentity.id);
         setIdentityId(userIdentity.id);
       }
 
@@ -77,11 +77,9 @@ const AddSkillForm = () => {
     }
   };
 
-
   const validationSchema = yup.object().shape({
     title: yup.string().required("title is required"),
-    thumbnail: yup.mixed().required("file is required"),
-    level: yup.string().required("level is required"),
+    // level: yup.string().required("level is required"),
   });
   console.log(`identityID: ${identityId}`);
 
@@ -97,34 +95,32 @@ const AddSkillForm = () => {
     if (matchingIdentity) {
       const identityIdForSkill = matchingIdentity.id;
       const formData = new FormData();
-    formData.append("title", values.title);
-    formData.append("thumbnail", values.thumbnail);
-    formData.append("level", values.level);
+      formData.append("title", values.title);
+      formData.append("thumbnail", values.thumbnail);
+      formData.append("level", values.level);
 
-    try {
-      await axios.post(
-        `http://localhost:5000/identities/${identityIdForSkill}/skills`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      console.log("savekSkill udah ada datanyak", values);
-      setMsg("Update Berhasil");
-      navigate("/skills");
-    } catch (error) {
-      if (error.response) {
-        setMsg(error.response.data.msg);
+      try {
+        await axios.post(
+          `http://localhost:5000/identities/${identityIdForSkill}/skills`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
         console.log("savekSkill udah ada datanyak", values);
-      } else {
-        setMsg("Terjadi kesalahan saat menyimpan data skill.");
+        setMsg("Update Berhasil");
+        navigate("/skills");
+      } catch (error) {
+        if (error.response) {
+          setMsg(error.response.data.msg);
+          console.log("savekSkill udah ada datanyak", values);
+        } else {
+          setMsg("Terjadi kesalahan saat menyimpan data skill.");
+        }
       }
     }
-    }
-
-    
   };
 
   return (
@@ -185,7 +181,6 @@ const AddSkillForm = () => {
                   setFieldValue("thumbnail", event.currentTarget.files[0]);
                 }}
                 onBlur={handleBlur}
-                error={touched.thumbnail && Boolean(errors.thumbnail)}
                 helperText={touched.thumbnail && errors.thumbnail}
                 sx={{ gridColumn: "span 4" }}
               />
@@ -193,7 +188,7 @@ const AddSkillForm = () => {
               <TextField
                 fullWidth
                 variant="filled"
-                type="text"
+                select // Use 'select' for dropdown
                 id="level"
                 name="level"
                 label="Level"
@@ -203,7 +198,11 @@ const AddSkillForm = () => {
                 error={touched.level && Boolean(errors.level)}
                 helperText={touched.level && errors.level}
                 sx={{ gridColumn: "span 4" }}
-              />
+              >
+                <MenuItem value="Beginner">Beginner</MenuItem>
+                <MenuItem value="Intermediate">Intermediate</MenuItem>
+                <MenuItem value="Advanced">Advanced</MenuItem>
+              </TextField>
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">
               <Button type="submit" color="secondary" variant="contained">

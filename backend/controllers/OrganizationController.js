@@ -32,7 +32,44 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
+const createUpload = multer({ storage: storage });
+
+const updateStorage = multer.diskStorage({
+  destination: (req, file, callback) => {
+    callback(null, "src/image/organization");
+  },
+  filename: async (req, file, callback) => {
+    try {
+      const identity = await Identity.findOne({
+        where: {
+          id: req.params.identityId,
+        },
+      });
+      if (!identity) {
+        throw new Error("identity not found");
+      }
+
+      const organization = await Organization.findOne({
+        where: {
+          id: req.params.organizationId,
+        },
+      });
+      if (!organization) {
+        throw new Error("organization not found");
+      }
+
+      const extensionName = path.extname(file.originalname);
+      const orgName = req.body.name_org || organization.name_org;
+      const filename = `${identity.name}_organization_${orgName}${extensionName}`;
+
+      callback(null, filename);
+    } catch (error) {
+      callback(error, null);
+    }
+  },
+});
+
+const updateUpload = multer({ storage: updateStorage });
 
 export const getOrganization = async (req, res) => {
   try {
@@ -88,23 +125,25 @@ export const getOrganizationById = async (req, res) => {
 export const createOrganization = async (req, res) => {
   try {
     // Use the multer upload middleware to handle file uploads
-    upload.single("image")(req, res, async (err) => {
+    createUpload.single("image")(req, res, async (err) => {
       if (err) {
         return res.status(500).send({
           message: "File cannot upload",
         });
       }
 
-      // File upload was successful, now you can access req.file
-      const file_name = req.file.filename;
       const { name_org, start_year, end_year, role, jobdesc } = req.body;
+      let file_name = null; // Default to null for image
+      if (req.file) {
+        file_name = req.file.filename;
+      }
       await Organization.create({
-        name_org: name_org,
+        name_org,
         image: file_name,
-        start_year: start_year,
-        end_year: end_year,
-        role: role,
-        jobdesc: jobdesc,
+        start_year,
+        end_year,
+        role,
+        jobdesc,
         identityId: req.params.identityId,
       });
       res.status(201).json({ msg: "Organization Created Successfully" });
@@ -125,42 +164,57 @@ export const updateOrganization = async (req, res) => {
     if (!organization)
       return res.status(404).json({ msg: "Data tidak ditemukan" });
 
-    upload.single("image")(req, res, async (err) => {
+    updateUpload.single("image")(req, res, async (err) => {
       if (err) {
         return res.status(500).send({
           message: "File cannot upload",
         });
       }
-      const file_name = req.file.filename;
-      const { name_org, start_year, end_year, role, jobdesc } = req.body;
+      let file_name = organization.image; // Default to the old image
+
+      if (req.file) {
+        // If there's a new uploaded image
+        if (organization.image) {
+          // Check if the old image exists
+          // Remove the old image file
+          const oldImagePath = path.join(
+            "src/image/organization",
+            organization.image
+          );
+          fs.unlink(oldImagePath, (err) => {
+            if (err) {
+              console.error("Gagal menghapus file lampiran lama:", err);
+              return res
+                .status(500)
+                .json({ msg: "Gagal menghapus file lampiran lama" });
+            }
+          });
+        }
+        file_name = req.file.filename; // Update to the new image
+      }
+
+      const orgName = req.body.name_org || organization.name_org;
+      const { start_year, end_year, role, jobdesc } = req.body;
 
       if (req.params.identityId == organization.identityId) {
-        // Hapus file lampiran lama dari direktori lokal
-        const oldImagePath = path.join(
-          "src/image/organization",
-          organization.image
-        );
-        fs.unlink(oldImagePath, (err) => {
-          if (err) {
-            console.error("Gagal menghapus file lampiran lama:", err);
-            return res
-              .status(500)
-              .json({ msg: "Gagal menghapus file lampiran lama" });
+        await Organization.update(
+          {
+            name_org: orgName,
+            image: file_name,
+            start_year,
+            end_year,
+            role,
+            jobdesc,
+          },
+          {
+            where: {
+              [Op.and]: [
+                { id: organization.id },
+                { identityId: req.params.identityId },
+              ],
+            },
           }
-
-          // Update data portofolio dengan file lampiran yang baru
-          Organization.update(
-            { name_org, image: file_name, start_year, end_year, role, jobdesc },
-            {
-              where: {
-                [Op.and]: [
-                  { id: organization.id },
-                  { identityId: req.params.identityId },
-                ],
-              },
-            }
-          );
-        });
+        );
       } else {
         return res.status(403).json({ msg: "Akses terlarang" });
       }
@@ -180,19 +234,39 @@ export const deleteOrganization = async (req, res) => {
       },
     });
 
-    if (!organization)
+    if (!organization) {
       return res.status(404).json({ msg: "Data tidak ditemukan" });
+    }
 
     if (req.params.identityId == organization.identityId) {
-      // Hapus file lampiran dari direktori lokal
-      const imagePath = path.join("src/image/organization", organization.image);
-      fs.unlink(imagePath, (err) => {
-        if (err) {
-          console.error("Gagal menghapus file lampiran:", err);
-          return res.status(500).json({ msg: "Gagal menghapus file lampiran" });
-        }
+      // Jika organization memiliki image
+      if (organization.image) {
+        const imagePath = path.join(
+          "src/image/organization",
+          organization.image
+        );
+        fs.unlink(imagePath, (err) => {
+          if (err) {
+            console.error("Gagal menghapus file lampiran:", err);
+            return res
+              .status(500)
+              .json({ msg: "Gagal menghapus file lampiran" });
+          }
 
-        Organization.destroy({
+          Organization.destroy({
+            where: {
+              [Op.and]: [
+                { id: organization.id },
+                { identityId: req.params.identityId },
+              ],
+            },
+          }).then(() => {
+            res.status(200).json({ msg: "Organization deleted successfully" });
+          });
+        });
+      } else {
+        // Jika organization tidak memiliki image
+        await Organization.destroy({
           where: {
             [Op.and]: [
               { id: organization.id },
@@ -200,13 +274,13 @@ export const deleteOrganization = async (req, res) => {
             ],
           },
         });
-      });
+        res.status(200).json({ msg: "Organization deleted successfully" });
+      }
     } else {
       return res.status(403).json({ msg: "Akses terlarang" });
     }
-
-    res.status(200).json({ msg: "Organization deleted successfully" });
   } catch (error) {
-    res.status(500).json({ msg: error.message });
+    console.error(error.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

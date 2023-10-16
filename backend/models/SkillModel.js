@@ -17,10 +17,6 @@ const Skill = db.define(
     level: {
       type: DataTypes.STRING,
       allowNull: true,
-    },
-    identityId:{
-      type: DataTypes.INTEGER,
-      allowNull: false
     }
   },
   {

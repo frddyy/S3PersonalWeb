@@ -20,7 +20,7 @@ import FlightLandOutlinedIcon from "@mui/icons-material/FlightLandOutlined";
 // import Image from "../../../../backend/src/image/identity"
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { LogOut, reset, getMe } from "../../features/AuthSlice";
+import { getMe } from "../../features/AuthSlice";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -56,12 +56,6 @@ const Sidebar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-
-  const logout = () => {
-    dispatch(LogOut());
-    dispatch(reset());
-    navigate("/");
-  };
 
   const [identities, setIdentities] = useState([]);
 
@@ -127,7 +121,7 @@ const Sidebar = () => {
     <Box
       sx={{
         "& .pro-sidebar-layout": {
-          height: "100%",
+          height: "100vh !important",
         },
         "& .pro-sidebar-inner": {
           background: `${colors.primary[400]} !important`,
@@ -139,10 +133,10 @@ const Sidebar = () => {
           padding: "5px 35px 5px 20px !important",
         },
         "& .pro-inner-item:hover": {
-          color: "#868dfb !important",
+          color: `${colors.greenAccent[400]} !important`,
         },
         "& .pro-menu-item.active": {
-          color: "#6870fa !important",
+          color: `${colors.greenAccent[400]} !important`,
         },
       }}
     >
@@ -164,8 +158,13 @@ const Sidebar = () => {
                 alignItems="center"
                 ml="15px"
               >
-                <Typography variant="h3" color={colors.grey[100]}>
-                  SISIPIAN
+                <Typography
+                  variant="h2"
+                  color={colors.greenAccent[400]}
+                  fontWeight="bold"
+                  sx={{ m: "0 0 5px 0" }}
+                >
+                  Portfolify
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                   <MenuOutlinedIcon />
@@ -279,18 +278,6 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-            <Button
-              sx={{
-                backgroundColor: colors.blueAccent[700],
-                color: colors.grey[100],
-                fontSize: "14px",
-                fontWeight: "bold",
-                padding: "10px 20px",
-              }}
-              onClick={logout}
-            >
-              Logout
-            </Button>
           </Box>
         </Menu>
       </ProSidebar>

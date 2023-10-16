@@ -85,7 +85,6 @@ const AddOrganizationForm = () => {
   // Define the Yup validation schema
   const validationSchema = yup.object().shape({
     name_org: yup.string().required("Organization Name is required"),
-    image: yup.string().required("Image is required"),
     start_year: yup.string().required("Start Year is required"),
     end_year: yup.string().required("End Year is required"),
     role: yup.string().required("Role is required"),
@@ -238,12 +237,8 @@ const AddOrganizationForm = () => {
                   }}
                   onBlur={handleBlur}
                   disableUnderline="true"
-                  error={touched.image && errors.image}
                   sx={{ gridColumn: "span 4" }}
                 />
-                 {touched.image && errors.image && (
-                  <Typography color="error">{errors.image}</Typography>
-                )}
               </Box>
               <TextField
                 fullWidth

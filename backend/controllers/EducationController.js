@@ -5,10 +5,9 @@ import multer from "multer";
 import Identity from "../models/IdentityModel.js";
 import fs from "fs";
 
-// Configure multer to specify where to store uploaded files and their names.
-const storage = multer.diskStorage({
+const createStorage = multer.diskStorage({
   destination: (req, file, callback) => {
-    callback(null, "src/image/education"); // Define the destination folder
+    callback(null, "src/image/education");
   },
   filename: async (req, file, callback) => {
     try {
@@ -20,9 +19,11 @@ const storage = multer.diskStorage({
       if (!identity) {
         throw new Error("identity not found");
       }
-      // Define the filename for the uploaded file
+
       const extensionName = path.extname(file.originalname);
-      const filename = `${identity.name}_education_${req.body.name_sch}${extensionName}`;
+      const schoolName = req.body.name_sch; // Only use the name from the request for creation
+      const filename = `${identity.name}_education_${schoolName}${extensionName}`;
+
       callback(null, filename);
     } catch (error) {
       callback(error, null);
@@ -30,7 +31,44 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
+const createUpload = multer({ storage: createStorage });
+
+const updateStorage = multer.diskStorage({
+  destination: (req, file, callback) => {
+    callback(null, "src/image/education");
+  },
+  filename: async (req, file, callback) => {
+    try {
+      const identity = await Identity.findOne({
+        where: {
+          id: req.params.identityId,
+        },
+      });
+      if (!identity) {
+        throw new Error("identity not found");
+      }
+
+      const education = await Education.findOne({
+        where: {
+          id: req.params.educationId,
+        },
+      });
+      if (!education) {
+        throw new Error("education not found");
+      }
+
+      const extensionName = path.extname(file.originalname);
+      const schoolName = req.body.name_sch || education.name_sch;
+      const filename = `${identity.name}_education_${schoolName}${extensionName}`;
+
+      callback(null, filename);
+    } catch (error) {
+      callback(error, null);
+    }
+  },
+});
+
+const updateUpload = multer({ storage: updateStorage });
 
 // Get all education records
 export const getEducation = async (req, res) => {
@@ -83,25 +121,29 @@ export const getEducationById = async (req, res) => {
   }
 };
 
-// Create a new education record
 export const createEducation = async (req, res) => {
   try {
-    upload.single("image")(req, res, async (err) => {
+    createUpload.single("image")(req, res, async (err) => {
       if (err) {
         return res.status(500).send({
           message: "file cannot upload",
         });
       }
 
-      const file_name = req.file.filename;
       const { name_sch, start_year, end_year, major, information } = req.body;
+
+      let file_name = null; // Default to null for image
+      if (req.file) {
+        file_name = req.file.filename;
+      }
+
       await Education.create({
-        name_sch: name_sch,
+        name_sch,
         image: file_name,
-        start_year: start_year,
-        end_year: end_year,
-        major: major,
-        information: information,
+        start_year,
+        end_year,
+        major,
+        information,
         identityId: req.params.identityId,
       });
       res.status(201).json({ msg: "Education created" });
@@ -112,7 +154,6 @@ export const createEducation = async (req, res) => {
   }
 };
 
-// Update an education record by education_id and identity_id
 export const updateEducation = async (req, res) => {
   try {
     const education = await Education.findOne({
@@ -124,58 +165,69 @@ export const updateEducation = async (req, res) => {
     if (!education)
       return res.status(404).json({ msg: "Data tidak ditemukan" });
 
-    upload.single("image")(req, res, async (err) => {
+    updateUpload.single("image")(req, res, async (err) => {
       if (err) {
         return res.status(500).send({
           message: "File cannot upload",
         });
       }
-      // Jika tidak ada file yang diupload, gunakan image sebelumnya
-      const file_name = req.file ? req.file.filename : education.image;
-      const { name_sch, start_year, end_year, major, information } = req.body;
+
+      let file_name = education.image; // Default to the old image
+
+      if (req.file) {
+        // If there's a new uploaded image
+        if (education.image) {
+          // Check if the old image exists
+          // Remove the old image file
+          const oldImagePath = path.join(
+            "src/image/education",
+            education.image
+          );
+          fs.unlink(oldImagePath, (err) => {
+            if (err) {
+              console.error("Gagal menghapus file lampiran lama:", err);
+              return res
+                .status(500)
+                .json({ msg: "Gagal menghapus file lampiran lama" });
+            }
+          });
+        }
+        file_name = req.file.filename; // Update to the new image
+      }
+
+      const schoolName = req.body.name_sch || education.name_sch;
+      const { start_year, end_year, major, information } = req.body;
 
       if (req.params.identityId == education.identityId) {
-        // Hapus file lampiran lama dari direktori lokal
-        const oldImagePath = path.join("src/image/education", education.image);
-        fs.unlink(oldImagePath, (err) => {
-          if (err) {
-            console.error("Gagal menghapus file lampiran lama:", err);
-            return res
-              .status(500)
-              .json({ msg: "Gagal menghapus file lampiran lama" });
-          }
-
-          // Update data portofolio dengan file lampiran yang baru
-          Education.update(
-            {
-              name_sch,
-              image: file_name,
-              start_year,
-              end_year,
-              major,
-              information,
+        await Education.update(
+          {
+            name_sch: schoolName,
+            image: file_name,
+            start_year,
+            end_year,
+            major,
+            information,
+          },
+          {
+            where: {
+              [Op.and]: [
+                { id: education.id },
+                { identityId: req.params.identityId },
+              ],
             },
-            {
-              where: {
-                [Op.and]: [
-                  { id: education.id },
-                  { identityId: req.params.identityId },
-                ],
-              },
-            }
-          );
-        });
+          }
+        );
+
+        return res.status(200).json({ msg: "Education updated successfully" });
       } else {
         return res.status(403).json({ msg: "Akses terlarang" });
       }
-
-      res.status(200).json({ msg: "Organization updated successfully" });
     });
   } catch (error) {
     res.status(500).json({ msg: error.message });
   }
 };
-// Delete an education record by education_id and identity_id
+
 export const deleteEducation = async (req, res) => {
   try {
     const education = await Education.findOne({
@@ -188,14 +240,31 @@ export const deleteEducation = async (req, res) => {
       return res.status(404).json({ msg: "Data tidak ditemukan" });
 
     if (req.params.identityId == education.identityId) {
-      const imagePath = path.join("src/image/education", education.image);
-      fs.unlink(imagePath, (err) => {
-        if (err) {
-          console.error("Gagal menghapus file lampiran:", err);
-          return res.status(500).json({ msg: "Gagal menghapus file lampiran" });
-        }
+      // Jika education memiliki image
+      if (education.image) {
+        const imagePath = path.join("src/image/education", education.image);
+        fs.unlink(imagePath, (err) => {
+          if (err) {
+            console.error("Gagal menghapus file lampiran:", err);
+            return res
+              .status(500)
+              .json({ msg: "Gagal menghapus file lampiran" });
+          }
 
-        Education.destroy({
+          Education.destroy({
+            where: {
+              [Op.and]: [
+                { id: education.id },
+                { identityId: req.params.identityId },
+              ],
+            },
+          }).then(() => {
+            res.status(200).json({ msg: "Education entry deleted" });
+          });
+        });
+      } else {
+        // Jika education tidak memiliki image
+        await Education.destroy({
           where: {
             [Op.and]: [
               { id: education.id },
@@ -203,12 +272,11 @@ export const deleteEducation = async (req, res) => {
             ],
           },
         });
-      });
+        res.status(200).json({ msg: "Education entry deleted" });
+      }
     } else {
       return res.status(403).json({ msg: "Akses terlarang" });
     }
-
-    res.status(200).json({ msg: "Education entry deleted" });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: "Internal server error" });

@@ -20,6 +20,7 @@ import EditSkill from "./pages/skills/EditSkill";
 import Portfolios from "./pages/portfolios/Portfolios";
 import AddPortfolio from "./pages/portfolios/AddPortfolio";
 import EditPortfolio from "./pages/portfolios/EditPortfolio";
+import LandingPage from "./pages/landing";
 
 function App() {
   return (
@@ -59,6 +60,7 @@ function App() {
             path="/portfolios/edit/:portfolioId"
             element={<EditPortfolio />}
           />
+          <Route path="/landing" element={<LandingPage/>}/>
         </Routes>
       </BrowserRouter>
     </div>
