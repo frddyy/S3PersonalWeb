@@ -4,38 +4,79 @@ import {
   Button,
   Typography,
   TextField,
+  MenuItem,
   useMediaQuery,
+  InputLabel,
+  useTheme,
 } from "@mui/material";
-import { Formik } from "formik";
+import { Formik, Field } from "formik";
 import * as yup from "yup";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Header from "../../components/header";
+import Header from "../header";
+import { tokens } from "../../theme";
+import { getMe } from "../../features/AuthSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const AddSkillForm = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const navigate = useNavigate();
 
+  const [userId, setUserId] = useState(""); // Initialize as an empty string
+  const [userRole, setUserRole] = useState(""); // Initialize as an empty string
+
   const [msg, setMsg] = useState("");
   const [identities, setIdentities] = useState([]);
   const [identityId, setIdentityId] = useState("");
 
+  let isAdmin = false;
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+
   useEffect(() => {
-    getIdentities();
-  }, []);
+    // Call getMe to set the userId
+    dispatch(getMe())
+      .then((result) => {
+        if (getMe.fulfilled.match(result)) {
+          const user = result.payload;
+          console.log("User:", user);
+          console.log("UserID:", user.id);
+          setUserId(user.id);
+          setUserRole(user.role);
+        }
+      })
+      .catch((error) => {
+        console.log("Error fetching user data:", error);
+      });
+  }, [dispatch]);
+
+  console.log("User ID yg dah diset: ", userId);
+  useEffect(() => {
+    if (userId) {
+      getIdentities();
+    }
+  }, [userId]);
+
+  if (userRole === "admin") {
+    isAdmin = true;
+  }
 
   const getIdentities = async () => {
     try {
       const response = await axios.get("http://localhost:5000/identities");
-      if (response.data.length > 0) {
+
+      if (!isAdmin && response.data.length > 0) {
         const userIdentity = response.data[0];
+        console.log("INI IDENTITY ID: ",userIdentity.id);
         setIdentityId(userIdentity.id);
       }
+
       setIdentities(response.data);
     } catch (error) {
       console.log(error.message);
     }
   };
+
 
   const validationSchema = yup.object().shape({
     title: yup.string().required("title is required"),
@@ -46,16 +87,23 @@ const AddSkillForm = () => {
 
   const saveSkill = async (values) => {
     console.log("savekSkill udah diklik", values);
-    if (!identityId) return;
+    // if (!identityId) return;
 
-    const formData = new FormData();
+    // Match the userId from the user object with an identity
+    const matchingIdentity = identities.find(
+      (identity) => identity.userId === userId
+    );
+
+    if (matchingIdentity) {
+      const identityIdForSkill = matchingIdentity.id;
+      const formData = new FormData();
     formData.append("title", values.title);
     formData.append("thumbnail", values.thumbnail);
     formData.append("level", values.level);
 
     try {
       await axios.post(
-        `http://localhost:5000/identities/${identityId}/skills`,
+        `http://localhost:5000/identities/${identityIdForSkill}/skills`,
         formData,
         {
           headers: {
@@ -74,6 +122,9 @@ const AddSkillForm = () => {
         setMsg("Terjadi kesalahan saat menyimpan data skill.");
       }
     }
+    }
+
+    
   };
 
   return (

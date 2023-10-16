@@ -1,26 +1,77 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-
-import { Box, Typography, Button, useTheme } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  useTheme,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/header";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ButtonGroup from "@mui/material/ButtonGroup";
+import { getMe } from "../../features/AuthSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const EducationList = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
+  const [userId, setUserId] = useState(""); // Initialize as an empty string
+  const [userRole, setUserRole] = useState(""); // Initialize as an empty string
+
   const [educations, setEducation] = useState([]);
-  const [identities, setIdentities] = useState("");
+  const [identities, setIdentities] = useState([]);
   const [identityId, setIdentityId] = useState("");
 
+  let isAdmin = false;
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+
   useEffect(() => {
-    getIdentities();
-  }, []);
+    // Call getMe to set the userId
+    dispatch(getMe())
+      .then((result) => {
+        if (getMe.fulfilled.match(result)) {
+          const user = result.payload;
+          console.log("User:", user);
+          console.log("UserID:", user.id);
+          setUserId(user.id);
+          setUserRole(user.role);
+        }
+      })
+      .catch((error) => {
+        console.log("Error fetching user data:", error);
+      });
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (userId) {
+      getIdentities();
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (userId) {
+      // For non-admin users, set the identityId based on their own identity
+      if (!isAdmin && identities.length > 0) {
+        setIdentityId(identities[0].id);
+      }
+    }
+  }, [userId, isAdmin, identities]);
+  console.log(identityId);
+
+
+  if (userRole === "admin") {
+    isAdmin = true;
+  }
 
   useEffect(() => {
     if (identityId !== "") {
@@ -28,21 +79,25 @@ const EducationList = () => {
     }
   }, [identityId]);
 
+  useEffect(() => {
+    getEducations();
+  }, []);
+
   const getIdentities = async () => {
     try {
       const response = await axios.get("http://localhost:5000/identities");
-      // Assuming the first identity in the response is the user's identity
-      if (response.data.length > 0) {
+
+      if (!isAdmin && response.data.length > 0) {
         const userIdentity = response.data[0];
         setIdentityId(userIdentity.id);
       }
+
       setIdentities(response.data);
     } catch (error) {
       console.log(error.message);
     }
   };
 
-  console.log(identityId);
   const getEducations = async () => {
     try {
       const response = await axios.get(
@@ -148,23 +203,45 @@ const EducationList = () => {
 
   return (
     <Box m="20px">
-      <Header title="EDUCATIONS" subtitle="Managing the Education    " />
-      <Link to="/educations/add">
-        <Button
-          sx={{
-            backgroundColor: colors.greenAccent[600],
-            color: colors.grey[100],
-            fontSize: "14px",
-            fontWeight: "bold",
-            padding: "10px 20px",
-          }}
-        >
-          Add New
-        </Button>
-      </Link>
+      <Header title="EDUCATIONS" subtitle="Managing the Education" />
+      {isAdmin ? ( // Periksa apakah pengguna adalah admin
+        <>
+          <FormControl variant="filled" sx={{ mx: 2, minWidth: 300 }}>
+            <InputLabel id="select-filled-label">Select User</InputLabel>
+            <Select
+              labelId="select-filled-label"
+              id="select-filled"
+              value={identityId}
+              onChange={(e) => setIdentityId(e.target.value)}
+              displayEmpty
+              fullWidth
+            >
+              {identities.map((identity) => (
+                <MenuItem key={identity.id} value={identity.id}>
+                  {identity.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+  
+          <Link to="/educations/add">
+            <Button
+              sx={{
+                backgroundColor: colors.greenAccent[600],
+                color: colors.grey[100],
+                fontSize: "14px",
+                fontWeight: "bold",
+                padding: "10px 20px",
+              }}
+            >
+              Add New
+            </Button>
+          </Link>
+        </>
+      ) : null}
       {educations.length === 0 ? (
-        <Typography variant="body1" color="textSecondary">
-          There are no identities available. Please add a new identity.
+        <Typography variant="body1" color="textSecondary" margin="10px">
+          There are no educations available. Please add a new education.
         </Typography>
       ) : (
         <Box
@@ -202,12 +279,16 @@ const EducationList = () => {
               overflowX: "auto", // Membuat tabel bisa digeser secara horizontal
             }}
           >
-            <DataGrid checkboxSelection rows={educations} columns={columns} />
+            <DataGrid
+              checkboxSelection
+              rows={educations}
+              columns={columns}
+            />
           </div>
         </Box>
       )}
     </Box>
-  );
+  );  
 };
 
 export default EducationList;

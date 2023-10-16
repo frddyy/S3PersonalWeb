@@ -130,7 +130,8 @@ export const updateEducation = async (req, res) => {
           message: "File cannot upload",
         });
       }
-      const file_name = req.file.filename;
+      // Jika tidak ada file yang diupload, gunakan image sebelumnya
+      const file_name = req.file ? req.file.filename : education.image;
       const { name_sch, start_year, end_year, major, information } = req.body;
 
       if (req.params.identityId == education.identityId) {

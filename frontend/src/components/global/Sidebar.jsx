@@ -48,7 +48,6 @@ const Sidebar = () => {
   const [selected, setSelected] = useState("Dashboard");
 
   const [name, setName] = useState("Loading..."); // Initialize with loading text
-  // const [image, setImage] = useState(""); // Initialize as an empty string
   const [userId, setUserId] = useState(""); // Initialize as an empty string
   const [role, setRole] = useState(""); // Initialize as an empty string
 
@@ -72,8 +71,8 @@ const Sidebar = () => {
       .then((result) => {
         if (getMe.fulfilled.match(result)) {
           const user = result.payload;
-          console.log("User:", user);
-          console.log("UserID:", user.id);
+          // console.log("User:", user);
+          // console.log("UserID:", user.id);
           setUserId(user.id);
           setRole(user.role);
         }
@@ -101,12 +100,12 @@ const Sidebar = () => {
   const getIdentities = async () => {
     try {
       const response = await axios.get("http://localhost:5000/identities");
-      console.log("Identities API response:", response.data);
+      // console.log("Identities API response:", response.data);
 
       const userIdentity = response.data.find(
         (identity) => identity.userId === userId
       );
-      console.log(userIdentity);
+      // console.log(userIdentity);
 
       if (userIdentity) {
         setName(userIdentity.name); // Update name state
