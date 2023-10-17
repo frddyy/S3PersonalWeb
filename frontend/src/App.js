@@ -21,13 +21,15 @@ import Portfolios from "./pages/portfolios/Portfolios";
 import AddPortfolio from "./pages/portfolios/AddPortfolio";
 import EditPortfolio from "./pages/portfolios/EditPortfolio";
 import LandingPage from "./pages/landing";
+import PersonalWeb from "./pages/personal";
 
 function App() {
   return (
     <div>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Login />} />
+        <Route path="/" element={<LandingPage/>}/>
+          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/users" element={<Users />} />
@@ -60,7 +62,7 @@ function App() {
             path="/portfolios/edit/:portfolioId"
             element={<EditPortfolio />}
           />
-          <Route path="/landing" element={<LandingPage/>}/>
+          <Route path="/portfolify" element={<PersonalWeb/>}/>
         </Routes>
       </BrowserRouter>
     </div>

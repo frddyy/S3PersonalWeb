@@ -25,8 +25,8 @@ const Topbar = () => {
   const { user } = useSelector((state) => state.auth);
 
   const isLoginOrRegisterPage =
-    location.pathname === "/register" || location.pathname === "/";
-  const isSearchBoxVisible = !isLoginOrRegisterPage; // Tampilkan searchbox jika bukan halaman login atau register
+    location.pathname === "/register" || location.pathname === "/login";
+  const isPortfolifyPage = location.pathname === "/portfolify";
 
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -45,38 +45,21 @@ const Topbar = () => {
   };
 
   return (
-    <Box display="flex" justifyContent="space-between" p={2}>
-      {isSearchBoxVisible && (
-        <Box
-          display="flex"
-          backgroundColor={colors.primary[400]}
-          borderRadius="3px"
-        >
-          <InputBase sx={{ ml: 2, flex: 1 }} placeholder="Search" />
-          <IconButton type="button" sx={{ p: 1 }}>
-            <SearchIcon />
-          </IconButton>
-        </Box>
-      )}
-
+    <Box display="flex" justifyContent="end" p={2}>
       {/* ICONS */}
       <Box display="flex">
-        <IconButton onClick={colorMode.toggleColorMode}>
-          {theme.palette.mode === "dark" ? (
-            <DarkModeOutlinedIcon />
-          ) : (
-            <LightModeOutlinedIcon />
-          )}
-        </IconButton>
+      {!isPortfolifyPage && (
+          <IconButton onClick={colorMode.toggleColorMode}>
+            {theme.palette.mode === "dark" ? (
+              <DarkModeOutlinedIcon />
+            ) : (
+              <LightModeOutlinedIcon />
+            )}
+          </IconButton>
+        )}
 
         {!isLoginOrRegisterPage && (
           <>
-            <IconButton>
-              <NotificationsOutlinedIcon />
-            </IconButton>
-            <IconButton>
-              <SettingsOutlinedIcon />
-            </IconButton>
             <IconButton onClick={handlePersonIconClick}>
               <PersonOutlinedIcon />
             </IconButton>
@@ -87,7 +70,6 @@ const Topbar = () => {
           open={Boolean(anchorEl)}
           onClose={handleCloseMenu}
         >
-          <MenuItem>Edit My Profile</MenuItem>
           <MenuItem onClick={logout}>Logout</MenuItem>
         </Menu>
       </Box>

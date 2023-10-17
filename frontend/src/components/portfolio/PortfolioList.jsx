@@ -127,21 +127,15 @@ const PortfolioList = () => {
     },
     {
       field: "description",
-      headerName: "Deskripsi",
-      flex: 1,
+      headerName: "Link Portfolio",
+      flex: 2,
       cellClassName: "image-column--cell",
     },
     {
       field: "attachment",
-      headerName: "File",
-      flex: 1,
+      headerName: "Image",
+      flex: 2,
       cellClassName: "pob-column--cell",
-    },
-    {
-      field: "identityId",
-      headerName: "Identity ID",
-      flex: 1,
-      cellClassName: "userId-column--cell",
     },
     {
       field: "action",
@@ -221,7 +215,7 @@ const PortfolioList = () => {
               ))}
             </Select>
           </FormControl>
-  
+
           <Link to="/portfolios/add">
             <Button
               sx={{
@@ -277,17 +271,12 @@ const PortfolioList = () => {
               overflowX: "auto", // Membuat tabel bisa digeser secara horizontal
             }}
           >
-            <DataGrid
-              checkboxSelection
-              rows={portfolios}
-              columns={columns}
-            />
+            <DataGrid checkboxSelection rows={portfolios} columns={columns} />
           </div>
         </Box>
       )}
     </Box>
   );
-  
 };
 
 export default PortfolioList;

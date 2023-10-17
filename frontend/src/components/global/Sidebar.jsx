@@ -272,8 +272,8 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
             <Item
-              title="Landing Page"
-              to="/landing"
+              title="Personal Web"
+              to="/portfolify"
               icon={<FlightLandOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}

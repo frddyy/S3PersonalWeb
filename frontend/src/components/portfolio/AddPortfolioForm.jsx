@@ -191,7 +191,7 @@ const AddPortfolioForm = () => {
                 type="text"
                 id="description"
                 name="description"
-                label="Description"
+                label="Link Portfolio"
                 value={values.description}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -199,21 +199,23 @@ const AddPortfolioForm = () => {
                 helperText={touched.description && errors.description}
                 sx={{ gridColumn: "span 4" }}
               />
-              <TextField
-                fullWidth
-                variant="filled"
-                type="file"
-                id="attachment"
-                name="attachment"
-                label="File"
-                onChange={(event) => {
-                  setFieldValue("attachment", event.currentTarget.files[0]);
-                }}
-                onBlur={handleBlur}
-                error={touched.attachment && Boolean(errors.attachment)}
-                helperText={touched.attachment && errors.attachment}
-                sx={{ gridColumn: "span 4" }}
-              />
+              <Box sx={{ gridColumn: "span 4" }}>
+                <Typography>Image</Typography>
+                <TextField
+                  fullWidth
+                  type="file"
+                  id="attachment"
+                  name="attachment"
+                  onChange={(event) => {
+                    setFieldValue("attachment", event.currentTarget.files[0]);
+                  }}
+                  disableUnderline="true"
+                  onBlur={handleBlur}
+                  error={touched.attachment && Boolean(errors.attachment)}
+                  helperText={touched.attachment && errors.attachment}
+                  sx={{ gridColumn: "span 4" }}
+                />
+              </Box>
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">
               <Button type="submit" color="secondary" variant="contained">

@@ -193,14 +193,14 @@ const EditPortfolioForm = () => {
             type="text"
             id="description"
             name="description"
-            label="Description"
+            label="Link Portfolio"
             value={portfolioData.description || ""}
             onChange={handleFieldChange}
             sx={{ gridColumn: "span 4" }}
           />
           {/* Field untuk Upload Image */}
           <Box sx={{ gridColumn: "span 4" }}>
-            <Typography>Attachment</Typography>
+            <Typography>Image</Typography>
             <TextField
               fullWidth
               type="file"

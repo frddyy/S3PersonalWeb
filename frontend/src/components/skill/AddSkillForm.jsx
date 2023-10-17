@@ -202,6 +202,7 @@ const AddSkillForm = () => {
                 <MenuItem value="Beginner">Beginner</MenuItem>
                 <MenuItem value="Intermediate">Intermediate</MenuItem>
                 <MenuItem value="Advanced">Advanced</MenuItem>
+                <MenuItem value="Expert">Expert</MenuItem>
               </TextField>
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">

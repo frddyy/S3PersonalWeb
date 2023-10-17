@@ -9,16 +9,45 @@ import Header from "../../components/header";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ButtonGroup from "@mui/material/ButtonGroup";
+import { getMe } from "../../features/AuthSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 
 const IdentityList = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
   const [identities, setIdentities] = useState([]);
+  const [msg, setMsg] = useState("");
+
+  const [userId, setUserId] = useState(""); // Initialize as an empty string
+  const [userRole, setUserRole] = useState(""); // Initialize as an empty string
+
+  let isAdmin = false;
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
+    // Call getMe to set the userId
+    dispatch(getMe())
+      .then((result) => {
+        if (getMe.fulfilled.match(result)) {
+          const user = result.payload;
+          console.log("User:", user);
+          console.log("UserID:", user.id);
+          setUserId(user.id);
+          setUserRole(user.role);
+        }
+      })
+      .catch((error) => {
+        console.log("Error fetching user data:", error);
+      });
+  }, [dispatch]);
+
+  useEffect(() => {
+    // Always fetch identities after getting userId
     getIdentities();
-  }, []);
+  }, [userId]);
 
   const getIdentities = async () => {
     try {

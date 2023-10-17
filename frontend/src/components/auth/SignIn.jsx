@@ -21,6 +21,8 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { tokens } from "../../theme";
 
 function Copyright(props) {
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
   return (
     <Typography
       variant="body2"
@@ -29,8 +31,8 @@ function Copyright(props) {
       {...props}
     >
       {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
+      <Link style={{ color: colors.primary[100] }} href="https://mui.com/">
+        Portfolify
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}
@@ -94,7 +96,7 @@ const SignIn = () => {
           <LockOutlinedIcon />
         </Avatar>
 
-        <Typography component="h1" variant="h3">
+        <Typography component="h1" variant="h3" color={colors.primary[100]}>
           Sign in
         </Typography>
         {isError && (
@@ -167,12 +169,12 @@ const SignIn = () => {
           </Button>
           <Grid container>
             <Grid item xs>
-              <Link href="#" variant="body2" color={colors.grey[100]}>
+              <Link href="#" variant="body2" style={{ color: colors.primary[100] }}>
                 Forgot password?
               </Link>
             </Grid>
             <Grid item>
-              <Link to="/register" variant="body2" color={colors.grey[100]}>
+              <Link to="/register" variant="body2" style={{ color: colors.primary[100] }}>
                 {"Don't have an account? Sign Up"}
               </Link>
             </Grid>

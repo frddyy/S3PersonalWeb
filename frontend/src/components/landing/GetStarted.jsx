@@ -3,6 +3,7 @@ import { Box, Container } from "@mui/system";
 import React from "react";
 import homeIllustration from "../media/illustration.png";
 import CustomButton from "./CustomButton";
+import { Link } from "react-router-dom";
 
 const GetStarted = () => {
   const CustomContainer = styled(Container)(({ theme }) => ({
@@ -36,20 +37,24 @@ const GetStarted = () => {
           <Typography
             sx={{ fontSize: "35px", color: "white", fontWeight: "700" }}
           >
-            Featured Properties
+            Apa yang bisa dilakukan website kami ?
           </Typography>
           <Typography
             sx={{ fontSize: "16px", color: "#ccc", fontWeight: "500", my: 3 }}
           >
-            Everything you need to know about houses!
+            Kami menyediakan Web Portfolio Generator. Anda hanya tinggal membuat
+            akun lalu mengisi biodata Anda. <br /> Fitur Generate to CV akan
+            datang segera!!
           </Typography>
 
-          <CustomButton
-            backgroundColor="#fff"
-            color="#17275F"
-            buttonText="Get Started Now"
-            getStartedBtn={true}
-          />
+          <Link to="/login">
+            <CustomButton
+              backgroundColor="#fff"
+              color="#17275F"
+              buttonText="Get Started Now"
+              getStartedBtn={true}
+            />
+          </Link>
         </Box>
 
         <img

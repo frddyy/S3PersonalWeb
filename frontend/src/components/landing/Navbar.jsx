@@ -7,9 +7,10 @@ import MiscellaneousServicesIcon from "@mui/icons-material/MiscellaneousServices
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import HomeIcon from "@mui/icons-material/Home";
 import ContactsIcon from "@mui/icons-material/Contacts";
-import logoImg from "../media/logo.png";
 import { Container } from "@mui/system";
 import CustomButton from "./CustomButton";
+import { Link } from "react-router-dom";
+
 import {
   Drawer,
   List,
@@ -105,12 +106,6 @@ export const Navbar = () => {
     },
   }));
 
-  const NavbarLogo = styled("img")(({ theme }) => ({
-    cursor: "pointer",
-    [theme.breakpoints.down("md")]: {
-      display: "none",
-    },
-  }));
 
   return (
     <NavbarContainer>
@@ -131,18 +126,9 @@ export const Navbar = () => {
           >
             {list("left")}
           </Drawer>
-          <NavbarLogo src={logoImg} alt="logo" />
         </Box>
-
-        <NavbarLinksBox>
-          <NavLink variant="body2">Home</NavLink>
-          <NavLink variant="body2">Features</NavLink>
-          <NavLink variant="body2">Services</NavLink>
-          <NavLink variant="body2">Listed</NavLink>
-          <NavLink variant="body2">Contact</NavLink>
-        </NavbarLinksBox>
       </Box>
-
+  
       <Box
         sx={{
           display: "flex",
@@ -151,12 +137,20 @@ export const Navbar = () => {
           gap: "1rem",
         }}
       >
-        <NavLink variant="body2">Sign Up</NavLink>
-        <CustomButton
-          backgroundColor="#0F1B4C"
-          color="#fff"
-          buttonText="Register"
-        />
+        <Link to="/register">
+            <CustomButton
+              color="#fff"
+              backgroundColor="#17275F"
+              buttonText="Register"
+            />
+          </Link>
+        <Link to="/login">
+            <CustomButton
+              color="#fff"
+              backgroundColor="#17275F"
+              buttonText="Login"
+            />
+          </Link>
       </Box>
     </NavbarContainer>
   );

@@ -22,6 +22,8 @@ import axios from "axios";
 import { tokens } from "../../theme";
 
 function Copyright(props) {
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
   return (
     <Typography
       variant="body2"
@@ -30,8 +32,8 @@ function Copyright(props) {
       {...props}
     >
       {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
+      <Link style={{ color: colors.primary[100] }} href="https://mui.com/">
+        Portfolify
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}
@@ -63,7 +65,7 @@ const SignUp = () => {
     try {
       await axios.post("http://localhost:5000/users", values);
       setMsg("Register Berhasil");
-      navigate("/");
+      navigate("/login");
     } catch (error) {
       if (error.response) {
         setMsg(error.response.data.msg);
@@ -90,7 +92,7 @@ const SignUp = () => {
         <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
           <LockOutlinedIcon />
         </Avatar>
-        <Typography component="h1" variant="h3">
+        <Typography component="h1" variant="h3" color={colors.primary[100]} >
           Sign up
         </Typography>
         <Formik
@@ -192,7 +194,7 @@ const SignUp = () => {
               </Button>
               <Grid container justifyContent="flex-end">
                 <Grid item>
-                  <Link to="/" variant="body2" color={colors.grey[100]}>
+                  <Link to="/login" variant="body2" style={{ color: colors.primary[100] }}>
                     Already have an account? Sign in
                   </Link>
                 </Grid>
