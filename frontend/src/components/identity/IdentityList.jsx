@@ -18,12 +18,15 @@ const IdentityList = () => {
   const colors = tokens(theme.palette.mode);
 
   const [identities, setIdentities] = useState([]);
+  const [identityUserId, setIdentityUserId] = useState("");
   const [msg, setMsg] = useState("");
 
   const [userId, setUserId] = useState(""); // Initialize as an empty string
   const [userRole, setUserRole] = useState(""); // Initialize as an empty string
 
   let isAdmin = false;
+  let hasIdentity = false;
+
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
 
@@ -47,7 +50,33 @@ const IdentityList = () => {
   useEffect(() => {
     // Always fetch identities after getting userId
     getIdentities();
+    getUserIdentityId();
   }, [userId]);
+
+  if (userRole === "admin") {
+    isAdmin = true;
+  }
+
+  if(userId === identityUserId) {
+    hasIdentity = true;
+  }
+
+  console.log("hasIdentity :",hasIdentity);
+
+
+  const getUserIdentityId = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/identities");
+
+      if (!isAdmin && response.data.length > 0) {
+        const userIdentity = response.data[0];
+        console.log("Identity User ID: ",userIdentity.userId);
+        setIdentityUserId(userIdentity.userId);
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   const getIdentities = async () => {
     try {
@@ -208,19 +237,21 @@ const IdentityList = () => {
   return (
     <Box m="20px">
       <Header title="IDENTITIES" subtitle="Managing the User Identity" />
-      <Link to="/identities/add">
-        <Button
-          sx={{
-            backgroundColor: colors.greenAccent[600],
-            color: colors.grey[100],
-            fontSize: "14px",
-            fontWeight: "bold",
-            padding: "10px 20px",
-          }}
-        >
-          Add New
-        </Button>
-      </Link>
+      {hasIdentity === false && (
+        <Link to="/identities/add">
+          <Button
+            sx={{
+              backgroundColor: colors.greenAccent[600],
+              color: colors.grey[100],
+              fontSize: "14px",
+              fontWeight: "bold",
+              padding: "10px 20px",
+            }}
+          >
+            Add New
+          </Button>
+        </Link>
+      )}
       {identities.length === 0 ? (
         <Typography variant="body1" color="textSecondary">
           There are no identities available. Please add a new identity.

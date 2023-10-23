@@ -223,8 +223,10 @@ const EducationList = () => {
               ))}
             </Select>
           </FormControl>
-  
-          <Link to="/educations/add">
+        </>
+      ) : null}
+
+      <Link to="/educations/add">
             <Button
               sx={{
                 backgroundColor: colors.greenAccent[600],
@@ -237,8 +239,7 @@ const EducationList = () => {
               Add New
             </Button>
           </Link>
-        </>
-      ) : null}
+          
       {educations.length === 0 ? (
         <Typography variant="body1" color="textSecondary" margin="10px">
           There are no educations available. Please add a new education.

@@ -218,22 +218,23 @@ const OrganizationList = () => {
               ))}
             </Select>
           </FormControl>
-  
-          <Link to="/organizations/add">
-            <Button
-              sx={{
-                backgroundColor: colors.greenAccent[600],
-                color: colors.grey[100],
-                fontSize: "14px",
-                fontWeight: "bold",
-                padding: "10px 20px",
-              }}
-            >
-              Add New
-            </Button>
-          </Link>
         </>
       ) : null}
+
+      <Link to="/organizations/add">
+        <Button
+          sx={{
+            backgroundColor: colors.greenAccent[600],
+            color: colors.grey[100],
+            fontSize: "14px",
+            fontWeight: "bold",
+            padding: "10px 20px",
+          }}
+        >
+          Add New
+        </Button>
+      </Link>
+
       {organization.length === 0 ? (
         <Typography variant="body1" color="textSecondary" margin="10px">
           There are no organizations available. Please add a new organizations.
@@ -274,17 +275,12 @@ const OrganizationList = () => {
               overflowX: "auto", // Membuat tabel bisa digeser secara horizontal
             }}
           >
-            <DataGrid
-              checkboxSelection
-              rows={organization}
-              columns={columns}
-            />
+            <DataGrid checkboxSelection rows={organization} columns={columns} />
           </div>
         </Box>
       )}
     </Box>
   );
-  
 };
 
 export default OrganizationList;

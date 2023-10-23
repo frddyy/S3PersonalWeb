@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -17,6 +17,8 @@ import { useNavigate } from "react-router-dom";
 import Header from "../../components/header";
 import { tokens } from "../../theme";
 import { styled } from "@mui/material/styles";
+import { getMe } from "../../features/AuthSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const AddIdentityForm = () => {
   const theme = useTheme();
@@ -27,20 +29,54 @@ const AddIdentityForm = () => {
 
   const [msg, setMsg] = useState("");
 
-  // Define the Yup validation schema
   const validationSchema = yup.object().shape({
-    name: yup.string().required("name is required"),
-    // image: yup.string().required("image is required"),
-    place_of_birth: yup.string().required("pob is required"),
-    date_of_birth: yup.date().required("pob is required"),
-    address: yup.string().required("address is required"),
-    phone_number: yup.string().required("phone no is required"),
-    email: yup.string().required("email is required"),
-    description: yup.string().required("description is required"),
-    // instagram : yup.string().required("instagram is required"),
-    // linkedin : yup.string().required("linkedin is required"),
-    // tw
+    name: yup.string().required("Full Name is required"),
+    phone_number: yup
+      .string()
+      .required("Phone Number is required")
+      .matches(/^\d{10}$/, "Phone Number must be 10 digits"),
+    email: yup
+      .string()
+      .required("Email is required")
+      .email("Invalid email format"),
+    image: yup
+      .mixed()
+      .test("fileFormat", "Invalid file format", (value) => {
+        if (value) {
+          const acceptedFormats = ["image/jpeg", "image/jpg", "image/png"];
+          return acceptedFormats.includes(value.type);
+        }
+        return true;
+      })
+      .test("fileSize", "File is too large", (value) => {
+        if (value) {
+          return value.size <= 2 * 1024 * 1024; // 2MB in bytes
+        }
+        return true;
+      }),
+    place_of_birth: yup.string().required("Place of Birth is required"),
+    date_of_birth: yup.date().required("Date of Birth is required"),
+    address: yup.string().required("Address is required"),
+    description: yup.string().required("Description is required"),
+    // Validation for social media links
+    instagram: yup.string().matches(
+      /^(https?:\/\/)?(www\.)?instagram\.com\/[a-zA-Z0-9_.]+$/,
+      "Invalid Instagram link"
+    ),
+    linkedin: yup.string().matches(
+      /^(https?:\/\/)?(www\.)?linkedin\.com\/in\/[a-zA-Z0-9_-]+$/,
+      "Invalid LinkedIn link"
+    ),
+    twitter: yup.string().matches(
+      /^(https?:\/\/)?(twitter\.com\/[a-zA-Z0-9_]+)$/,
+      "Invalid Twitter link"
+    ),
+    github: yup.string().matches(
+      /^(https?:\/\/)?(github\.com\/[a-zA-Z0-9_-]+)$/,
+      "Invalid GitHub link"
+    ),
   });
+  
 
   const saveIdentity = async (values) => {
     try {

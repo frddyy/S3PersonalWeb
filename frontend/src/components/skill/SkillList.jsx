@@ -206,22 +206,23 @@ const SkillList = () => {
               ))}
             </Select>
           </FormControl>
-  
-          <Link to="/skills/add">
-            <Button
-              sx={{
-                backgroundColor: colors.greenAccent[600],
-                color: colors.grey[100],
-                fontSize: "14px",
-                fontWeight: "bold",
-                padding: "10px 20px",
-              }}
-            >
-              Add New
-            </Button>
-          </Link>
         </>
       ) : null}
+
+      <Link to="/skills/add">
+        <Button
+          sx={{
+            backgroundColor: colors.greenAccent[600],
+            color: colors.grey[100],
+            fontSize: "14px",
+            fontWeight: "bold",
+            padding: "10px 20px",
+          }}
+        >
+          Add New
+        </Button>
+      </Link>
+
       {skills.length === 0 ? (
         <Typography variant="body1" color="textSecondary" margin="10px">
           There are no skill available. Please add a new skill.
@@ -262,16 +263,12 @@ const SkillList = () => {
               overflowX: "auto", // Membuat tabel bisa digeser secara horizontal
             }}
           >
-            <DataGrid
-              checkboxSelection
-              rows={skills}
-              columns={columns}
-            />
+            <DataGrid checkboxSelection rows={skills} columns={columns} />
           </div>
         </Box>
       )}
     </Box>
-  );  
+  );
 };
 
 export default SkillList;

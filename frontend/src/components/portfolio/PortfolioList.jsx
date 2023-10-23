@@ -215,22 +215,23 @@ const PortfolioList = () => {
               ))}
             </Select>
           </FormControl>
-
-          <Link to="/portfolios/add">
-            <Button
-              sx={{
-                backgroundColor: colors.greenAccent[600],
-                color: colors.grey[100],
-                fontSize: "14px",
-                fontWeight: "bold",
-                padding: "10px 20px",
-              }}
-            >
-              Add New
-            </Button>
-          </Link>
         </>
       ) : null}
+
+      <Link to="/portfolios/add">
+        <Button
+          sx={{
+            backgroundColor: colors.greenAccent[600],
+            color: colors.grey[100],
+            fontSize: "14px",
+            fontWeight: "bold",
+            padding: "10px 20px",
+          }}
+        >
+          Add New
+        </Button>
+      </Link>
+
       {portfolios.length === 0 ? (
         <Typography variant="body1" color="textSecondary" margin="10px">
           There are no portfolio available. Please add a new portfolio.
