@@ -10,8 +10,8 @@ import {
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/header";
-import * as yup from "yup"; // Import Yup for validation
-import { Formik } from "formik";
+import { Formik, Field, ErrorMessage, Form } from "formik";
+import * as Yup from "yup";
 
 
 const EditIdentityForm = () => {
@@ -42,41 +42,14 @@ const EditIdentityForm = () => {
           `http://localhost:5000/identities/${identityId}`
         );
         const identityData = response.data;
-        setIdentityData(identityData);
+        setIdentityData(identityData || {});
       } catch (error) {
         console.error("Error fetching identity data:", error);
       }
     };
 
-    console.log(identityData)
-
     getIdentityById();
   }, [identityId]);
-
-    // Define the Yup validation schema
-  const validationSchema = yup.object().shape({
-    name: yup.string().required("Full Name is required"),
-    phone_number: yup
-      .string()
-      .matches(
-        /^\d{10}$/,
-        "Phone Number must be a 10-digit numeric value"
-      ),
-    email: yup.string().email("Email must be a valid email address"),
-    instagram: yup.string().url("Instagram must be a valid URL"),
-    linkedin: yup.string().url("Linkedin must be a valid URL"),
-    twitter: yup.string().url("Twitter must be a valid URL"),
-    github: yup.string().url("Github must be a valid URL"),
-    image: yup
-      .mixed()
-      .test("fileFormat", "Invalid file format", (value) => {
-        if (value) {
-          return value && value.type.startsWith("image/");
-        }
-        return true; // Allow empty field
-      }),
-  });
-
 
   const updateIdentity = async (e) => {
     e.preventDefault();
@@ -123,183 +96,167 @@ const EditIdentityForm = () => {
       <Typography variant="h6" color="error">
         {msg}
       </Typography>
-      <Formik
-       initialValues={{
-        name: identityData.name,
-        image: identityData.image,
-        place_of_birth: identityData.place_of_birth,
-        date_of_birth: identityData.date_of_birth,
-        address: identityData.address,
-        phone_number: identityData.phone_number,
-        email: identityData.email,
-        description: identityData.description,
-        instagram: identityData.instagram,
-        linkedin: identityData.linkedin,
-        twitter: identityData.twitter,
-        github: identityData.github,
-      }}
-        validationSchema={validationSchema}
-        onSubmit={updateIdentity}
-      >
-        {({
-          values,
-          errors,
-          touched,
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          setFieldValue,
-        }) => (
-          <form onSubmit={handleSubmit}>
-            <Box
-              display="grid"
-              gap="30px"
-              gridTemplateColumns={
-                isNonMobile ? "repeat(4, minmax(0, 1fr))" : "1fr"
-              }
-            >
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                id="name"
-                name="name"
-                label="Full Name"
-                value={values.name}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                sx={{ gridColumn: "span 2" }}
-              />
-              {touched.name && errors.name && (
-                <Typography color="error">{errors.name}</Typography>)
-              }
+      <form onSubmit={(values) => updateIdentity(values)}>
+        <Box
+          display="grid"
+          gap="30px"
+          gridTemplateColumns={
+            isNonMobile ? "repeat(4, minmax(0, 1fr))" : "1fr"
+          }
+        >
+          <TextField
+            fullWidth
+            variant="filled"
+            type="text"
+            id="name"
+            name="name"
+            label="Full Name"
+            value={identityData.name || ""}
+            onChange={handleFieldChange}
+            sx={{ gridColumn: "span 4" }}
+          />
+          {/* Field untuk Upload Image */}
+          <Box sx={{ gridColumn: "span 4" }}>
+            <Typography>Image</Typography>
+            <TextField
+              fullWidth
+              type="file"
+              id="image"
+              name="image"
+              onChange={handleFieldChange}
+              disableUnderline="true"
+              sx={{ gridColumn: "span 4" }}
+            />
+          </Box>
+          <TextField
+            fullWidth
+            variant="filled"
+            type="text"
+            id="place_of_birth"
+            name="place_of_birth"
+            label="Place of Birth"
+            value={identityData.place_of_birth || ""}
+            onChange={handleFieldChange}
+            sx={{ gridColumn: "span 1" }}
+          />
+          <TextField
+            fullWidth
+            variant="filled"
+            type="text"
+            id="date_of_birth"
+            name="date_of_birth"
+            label="Date of Birth"
+            value={identityData.date_of_birth || ""}
+            onChange={handleFieldChange}
+            sx={{ gridColumn: "span 3" }}
+          />
+          <TextField
+            fullWidth
+            variant="filled"
+            type="text"
+            id="address"
+            name="address"
+            label="Address"
+            value={identityData.address || ""}
+            onChange={handleFieldChange}
+            sx={{ gridColumn: "span 4" }}
+            multiline
+            rows={4}
+          />
 
-              <Box sx={{ gridColumn: "span 4" }}>
-                <Typography>Image</Typography>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) => {
-                    setFieldValue("image", event.currentTarget.files[0]);
-                  }}
-                />
-              </Box>
+          <TextField
+            fullWidth
+            variant="filled"
+            type="text"
+            id="phone_number"
+            name="phone_number"
+            label="Phone Number"
+            value={identityData.phone_number || ""}
+            onChange={handleFieldChange}
+            sx={{ gridColumn: "span 2" }}
+          />
 
-              {values.image && (
-                <Typography>{values.image.name}</Typography>
-              )}
-              {touched.image && errors.image && (
-                <Typography color="error">{errors.image}</Typography>)
-              }
+          <TextField
+            fullWidth
+            variant="filled"
+            type="text"
+            id="email"
+            name="email"
+            label="Email"
+            value={identityData.email || ""}
+            onChange={handleFieldChange}
+            sx={{ gridColumn: "span 2" }}
+          />
 
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                id="phone_number"
-                name="phone_number"
-                label="Phone Number"
-                value={values.phone_number}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                sx={{ gridColumn: "span 2" }}
-              />
-              {touched.phone_number && errors.phone_number && (
-                <Typography color="error">{errors.phone_number}</Typography>)
-              }
+          <TextField
+            fullWidth
+            variant="filled"
+            type="textarea"
+            id="description"
+            name="description"
+            label="Description"
+            value={identityData.description || ""}
+            onChange={handleFieldChange}
+            sx={{ gridColumn: "span 4" }}
+            multiline
+            rows={4}
+          />
 
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                id="email"
-                name="email"
-                label="Email"
-                value={values.email}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                sx={{ gridColumn: "span 2" }}
-              />
-              {touched.email && errors.email && (
-                <Typography color="error">{errors.email}</Typography>)
-              }
+          <TextField
+            fullWidth
+            variant="filled"
+            type="text"
+            id="instagram"
+            name="instagram"
+            label="Instagram"
+            value={identityData.instagram || ""}
+            onChange={handleFieldChange}
+            sx={{ gridColumn: "span 2" }}
+          />
 
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                id="instagram"
-                name="instagram"
-                label="Instagram"
-                value={values.instagram}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                sx={{ gridColumn: "span 2" }}
-              />
-              {touched.instagram && errors.instagram && (
-                <Typography color="error">{errors.instagram}</Typography>)
-              }
+          <TextField
+            fullWidth
+            variant="filled"
+            type="text"
+            id="linkedin"
+            name="linkedin"
+            label="Linkedin"
+            value={identityData.linkedin || ""}
+            onChange={handleFieldChange}
+            sx={{ gridColumn: "span 2" }}
+          />
 
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                id="linkedin"
-                name="linkedin"
-                label="Linkedin"
-                value={values.linkedin}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                sx={{ gridColumn: "span 2" }}
-              />
-              {touched.linkedin && errors.linkedin && (
-                <Typography color="error">{errors.linkedin}</Typography>)
-              }
+          <TextField
+            fullWidth
+            variant="filled"
+            type="text"
+            id="twitter"
+            name="twitter"
+            label="Twitter"
+            value={identityData.twitter || ""}
+            onChange={handleFieldChange}
+            sx={{ gridColumn: "span 2" }}
+          />
 
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                id="twitter"
-                name="twitter"
-                label ="Twitter"
-                value={values.twitter}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                sx={{ gridColumn: "span 2" }}
-              />
+          <TextField
+            fullWidth
+            variant="filled"
+            type="text"
+            id="github"
+            name="github"
+            label="Github"
+            value={identityData.github || ""}
+            onChange={handleFieldChange}
+            sx={{ gridColumn: "span 2" }}
+          />
+        </Box>
 
-              {touched.twitter && errors.twitter && (
-                <Typography color="error">{errors.twitter}</Typography>)
-              }
-
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                id="github"
-                name= "github"
-                label="Github"
-                value={values.github}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                sx={{ gridColumn: "span 2" }}
-              />
-              {touched.github && errors.github && (
-                <Typography color="error">{errors.github}</Typography>)
-              }
-
-              
-            </Box>
-
-            <Box display="flex" justifyContent="end" mt="20px">
-              <Button type="submit" color="secondary" variant="contained">
-                Edit Profile
-              </Button>
-            </Box>
-          </form>
-        )}
-      </Formik>
+        <Box display="flex" justifyContent="end" mt="20px">
+          <Button type="submit" color="secondary" variant="contained">
+            Edit Profile
+          </Button>
+        </Box>
+      </form>
     </Box>
   );
 };

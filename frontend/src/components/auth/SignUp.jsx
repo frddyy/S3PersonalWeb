@@ -50,15 +50,20 @@ const SignUp = () => {
   const navigate = useNavigate();
 
   const [msg, setMsg] = useState("");
+  const [error, setError] = useState(false)
+  const [errorPassword, setErrorPassword] = useState(false)
 
   // Define the Yup validation schema
   const validationSchema = yup.object().shape({
     username: yup.string().required("Username is required"),
-    password: yup.string().required("Password is required"),
+    password: yup
+      .string()
+      .required("Password is required")
+      .min(8, "Password must be at least 8 characters"),
     confirmPassword: yup
       .string()
       .oneOf([yup.ref("password"), null], "Passwords must match")
-      .required("Confirm Password is required")
+      .required("Confirm Password is required"),
   });
 
   const saveUser = async (values) => {
@@ -67,11 +72,9 @@ const SignUp = () => {
       setMsg("Register Berhasil");
       navigate("/login");
     } catch (error) {
-      if (error.response) {
-        setMsg(error.response.data.msg);
-      } else {
-        setMsg("Terjadi kesalahan saat menyimpan pengguna.");
-      }
+      console.log(error.response.data.msg)
+      setMsg(error.response.data.msg);
+      setError(true)
     }
   };
 
@@ -133,6 +136,9 @@ const SignUp = () => {
                   {touched.username && errors.username && (
                     <Typography color="error">{errors.username}</Typography>
                   )}
+                  {error ? (
+                   <Typography color="error">{msg}</Typography>
+                  ) : null}
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
@@ -152,6 +158,9 @@ const SignUp = () => {
                   {touched.password && errors.password && (
                     <Typography color="error">{errors.password}</Typography>
                   )}
+                  {error ? (
+                   <Typography color="error">{msg}</Typography>
+                  ) : null}
                 </Grid>
 
                 <Grid item xs={12}>
@@ -192,6 +201,10 @@ const SignUp = () => {
               >
                 Sign Up
               </Button>
+
+              
+
+
               <Grid container justifyContent="flex-end">
                 <Grid item>
                   <Link to="/login" variant="body2" style={{ color: colors.primary[100] }}>

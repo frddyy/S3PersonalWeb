@@ -160,11 +160,8 @@ const AddOrganizationForm = () => {
         setMsg("Update Berhasil");
         navigate("/organizations");
       } catch (error) {
-        if (error.response) {
-          setMsg(error.response.data.msg);
-        } else {
-          setMsg("Terjadi kesalahan saat menyimpan organizations.");
-        }
+        console.log(error);
+        setMsg(error.response.data.msg);
       }
     }
   };

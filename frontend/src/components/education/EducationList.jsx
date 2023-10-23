@@ -227,19 +227,18 @@ const EducationList = () => {
       ) : null}
 
       <Link to="/educations/add">
-            <Button
-              sx={{
-                backgroundColor: colors.greenAccent[600],
-                color: colors.grey[100],
-                fontSize: "14px",
-                fontWeight: "bold",
-                padding: "10px 20px",
-              }}
-            >
-              Add New
-            </Button>
-          </Link>
-          
+                  <Button
+                    sx={{
+                      backgroundColor: colors.greenAccent[600],
+                      color: colors.grey[100],
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      padding: "10px 20px",
+                    }}
+                  >
+                    Add New
+                  </Button>
+                </Link>
       {educations.length === 0 ? (
         <Typography variant="body1" color="textSecondary" margin="10px">
           There are no educations available. Please add a new education.
